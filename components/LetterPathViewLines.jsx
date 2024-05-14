@@ -1,6 +1,7 @@
 import React from 'react';
 
 const LetterPathViewLines = () => {
+  console.log('hi');
   const getPathDimensions = () => {
     if (pathRef.current) {
       const pathLength = pathRef.current.getTotalLength();
