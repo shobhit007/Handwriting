@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Animated} from 'react-native';
+import {Animated, Button} from 'react-native';
 import {Svg, Path, G, Defs, Line, ClipPath} from 'react-native-svg';
-import Sound from 'react-native-sound';
 import {TextToSpeech} from '../functions/text-to-speech';
+import Sound from 'react-native-sound';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const LetterPathViewLines = ({showLines, selectedLetter}) => {
@@ -14,6 +14,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const [secondLine, setSecondLine] = useState(0);
   const [fourLine, setFourLine] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
+  const [audioPlayer, setAudioPlayer] = useState(null);
   const [translateY, setTranslateY] = useState(false);
   const [dimensions, setDimensions] = useState(null);
   const [audioSrc, setAudioSrc] = useState(null);
@@ -23,33 +24,51 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const animation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (pathRef.current && selectedLetter) {
+      const textScript =
+        'flowing motion that begins with a small upward curve from the baseline. As you continue, create a rounded loop towards the top left, maintaining a fluid movement. At the apex of the loop, form a small counter-clockwise loop, giving the a its characteristic elegance. Then, gently curve back down to the baseline, ensuring a smooth transition. Finally, complete the a with a subtle hook or flick to the right, adding a finishing touch to its graceful form. Practice with a light touch, allowing your pen to glide effortlessly, until you achieve the desired fluidity and beauty in your cursive a';
+
+      TextToSpeech({setAudioSrc, audioUrl: selectedLetter?.audioUrl});
+      const newdimensions = getPathDimensions();
+      setDimensions(newdimensions);
+      // setAudioSrc(selectedLetter?.audioUrl);
+    }
+  }, [selectedLetter]);
+
+  const playAudio = () => {
+    console.log('inside the playAudio');
+    if (audioPlayer) {
+      audioPlayer.play(success => {
+        if (success) {
+          console.log('Successfully finished playing');
+        } else {
+          console.log('Playback failed due to audio decoding errors');
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
     if (audioSrc) {
-      console.log('check audioUrl for playing audio', audioSrc);
-      const sound = new Sound(audioSrc, null, error => {
+      console.log('check audioSrc=', audioSrc);
+      const sound = new Sound(audioSrc, '', error => {
         if (error) {
-          console.log('Failed to load the sound', error);
+          console.log('Failed to load sound', error);
           return;
         }
-        // Loaded successfully, play the sound
-        sound.play();
       });
-
-      // Release the sound resource when the component is unmounted
-      return () => {
-        if (sound) {
-          sound.release();
-        }
-      };
+      setAudioPlayer(sound);
     }
   }, [audioSrc]);
 
   useEffect(() => {
-    if (pathRef.current && selectedLetter) {
-      TextToSpeech({setAudioSrc});
-      const newdimensions = getPathDimensions();
-      setDimensions(newdimensions);
-    }
-  }, [selectedLetter]);
+    return () => {
+      if (audioPlayer) {
+        audioPlayer.release();
+      }
+    };
+  }, []);
+
   const getPathDimensions = () => {
     if (pathRef.current) {
       const pathLength = pathRef.current.getTotalLength();
@@ -75,10 +94,11 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
     if (selectedLetter) {
       // Reset animation value back to 0
       animation.setValue(0);
+      // playAudio()
 
       Animated.timing(animation, {
         toValue: 1,
-        duration: 10000,
+        duration: 20000,
         useNativeDriver: true,
       }).start();
     }
@@ -112,6 +132,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   }, [dimensions]);
   return (
     <React.Fragment>
+      <Button title={'Play Audio'} onPress={playAudio} />
       <Svg
         fill={'none'}
         width={SVG_WIDTH}
