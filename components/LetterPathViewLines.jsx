@@ -14,6 +14,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const [secondLine, setSecondLine] = useState(0);
   const [fourLine, setFourLine] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
   const [audioPlayer, setAudioPlayer] = useState(null);
   const [translateY, setTranslateY] = useState(false);
   const [dimensions, setDimensions] = useState(null);
@@ -56,6 +57,9 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
           console.log('Failed to load sound', error);
           return;
         }
+        const duration = sound.getDuration();
+        setAudioDuration(duration + 15200);
+        console.log('check audio duration', duration);
       });
       setAudioPlayer(sound);
     }
@@ -91,18 +95,18 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
     // console.log('check audio src ', audioSrc);
   }, [audioSrc]);
   useEffect(() => {
-    if (selectedLetter) {
+    if (selectedLetter && audioDuration) {
       // Reset animation value back to 0
+      playAudio();
       animation.setValue(0);
-      // playAudio()
 
       Animated.timing(animation, {
         toValue: 1,
-        duration: 20000,
+        duration: audioDuration,
         useNativeDriver: true,
       }).start();
     }
-  }, [selectedLetter]);
+  }, [selectedLetter, audioDuration]);
   const strokeDashoffset = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [793, 0],
@@ -133,6 +137,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   return (
     <React.Fragment>
       <Button title={'Play Audio'} onPress={playAudio} />
+
       <Svg
         fill={'none'}
         width={SVG_WIDTH}

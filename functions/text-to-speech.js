@@ -2,23 +2,18 @@ import base64 from 'react-native-base64';
 import {OPENAI_KEY} from '@env';
 import RNFS from 'react-native-fs';
 
-
 //get audio url convert it to file
 export const TextToSpeech = async ({setAudioSrc, audioUrl}) => {
   try {
     const audioBuffer = `data:audio/mpeg;base64,${audioUrl}`;
-    // console.log('check whats in audioBuffer openai function', audioBuffer);
     const binary = base64.decode(audioBuffer.split(',')[1]);
-    // console.log('check whats in binary openai function', binary);
     const array = [];
     for (let i = 0; i < binary.length; i++) {
       array.push(binary.charCodeAt(i));
     }
-    // console.log('check whats in array openai function', array);
 
     // Write the base64 string to a file.
     const path = `${RNFS.DocumentDirectoryPath}/audio.mp3`;
-    // console.log('check whats in path openai function', path);
     await RNFS.writeFile(path, audioUrl, 'base64');
 
     setAudioSrc(path);
@@ -26,7 +21,6 @@ export const TextToSpeech = async ({setAudioSrc, audioUrl}) => {
     console.error('Error fetching speech audio:', error);
   }
 };
-
 
 //generate audio using openai
 // export const TextToSpeech = async ({setAudioSrc, audioUrl}) => {
