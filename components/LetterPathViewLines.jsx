@@ -60,6 +60,16 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
         const duration = sound.getDuration();
         setAudioDuration(duration + 15200);
         console.log('check audio duration', duration);
+        const startTime = Date.now();
+
+        const animate = () => {
+          const elapsedTime = (Date.now() - startTime) / 1000;
+          console.log('elapsedTime', elapsedTime);
+          const currentProgress = elapsedTime / duration;
+          console.log('currentProgress', currentProgress);
+          // setProgress(currentProgress);
+        };
+        requestAnimationFrame(animate);
       });
       setAudioPlayer(sound);
     }
@@ -76,6 +86,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const getPathDimensions = () => {
     if (pathRef.current) {
       const pathLength = pathRef.current.getTotalLength();
+      console.log('pathLength', pathLength);
       const pathCoordinates = Array.from({length: pathLength}, (_, i) =>
         pathRef.current.getPointAtLength(i),
       );

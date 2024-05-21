@@ -22,6 +22,24 @@ export const TextToSpeech = async ({setAudioSrc, audioUrl}) => {
   }
 };
 
+export const convertBufferToBase64 = async buffer => {
+  try {
+    const audioBuffer = `data:audio/mpeg;base64,${buffer}`;
+    const binary = base64.decode(audioBuffer.split(',')[1]);
+    const array = [];
+    for (let i = 0; i < binary.length; i++) {
+      array.push(binary.charCodeAt(i));
+    }
+
+    // Write the base64 string to a file.
+    const path = `${RNFS.DocumentDirectoryPath}/audio.mp3`;
+    await RNFS.writeFile(path, buffer, 'base64');
+    return path;
+  } catch (error) {
+    console.error('Error fetching speech audio:', error);
+  }
+};
+
 //generate audio using openai
 // export const TextToSpeech = async ({setAudioSrc, audioUrl}) => {
 //   try {
