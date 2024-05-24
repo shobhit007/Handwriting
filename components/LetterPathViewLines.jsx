@@ -1,13 +1,13 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {Animated, Button} from 'react-native';
-import {Svg, Path, G, Defs, Line, ClipPath} from 'react-native-svg';
+import {Svg, Path, G, Defs, Line, ClipPath, Polyline} from 'react-native-svg';
 import {TextToSpeech} from '../functions/text-to-speech';
 import Sound from 'react-native-sound';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const SVG_WIDTH = 309;
-  const SVG_HEIGHT = 200;
+  const SVG_HEIGHT = 300;
   const lineStrokWidth = 3;
 
   const [baseLine, setBaseLine] = useState(0);
@@ -23,6 +23,64 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const baseLineRef = useRef();
   const secondLineRef = useRef();
   const animation = useRef(new Animated.Value(0)).current;
+  const [allSvgPathCoordinates, setAllSvgPathCoordinates] = useState(null);
+  const [polyPoints, setPolyPoints] = useState(null);
+  const [breakPointsCoordinates, setBreakPointsCoordinates] = useState([]);
+  const [animationPathLength, setAnimaitonPathLength] = useState(30);
+
+  useEffect(() => {
+    if (allSvgPathCoordinates) {
+      const points = allSvgPathCoordinates
+        .map(point => `${point.x},${point.y}`)
+        .join(' ');
+      setPolyPoints(points);
+    }
+  }, [allSvgPathCoordinates]);
+
+  const getTotalPathLength = () => {
+    if (pathRef.current) {
+      return pathRef.current.getTotalLength();
+    }
+    return 0;
+  };
+
+  // Function to find position of a point along the path
+  const getPositionAlongPath = distance => {
+    if (pathRef.current) {
+      return pathRef.current.getPointAtLength(distance);
+    }
+    return null;
+  };
+
+  // Function to find the distance between two points along the SVG path
+  const distanceBetweenTwoPoints = (point1, point2) => {
+    const totalLength = getTotalPathLength();
+    if (totalLength === 0) return 0;
+
+    let distance1 = 0;
+    let distance2 = 0;
+
+    for (let i = 0; i < totalLength; i++) {
+      const position = getPositionAlongPath(i);
+      if (
+        position.x === breakPointsCoordinates[0].x &&
+        position.y === breakPointsCoordinates[0].y
+      ) {
+        distance1 = i;
+      }
+      if (
+        position.x === breakPointsCoordinates[1].x &&
+        position.y === breakPointsCoordinates[1].y
+      ) {
+        distance2 = i;
+      }
+    }
+
+    console.log(
+      'Math.abs(distance2 - distance1)',
+      Math.abs(distance2 - distance1),
+    );
+  };
 
   useEffect(() => {
     if (pathRef.current && selectedLetter) {
@@ -58,7 +116,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
           return;
         }
         const duration = sound.getDuration();
-        setAudioDuration(duration + 15200);
+        setAudioDuration(duration + 16300);
         console.log('check audio duration', duration);
       });
       setAudioPlayer(sound);
@@ -79,6 +137,8 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
       const pathCoordinates = Array.from({length: pathLength}, (_, i) =>
         pathRef.current.getPointAtLength(i),
       );
+      setAllSvgPathCoordinates(pathCoordinates);
+      // console.log('check path of svg coordinates', pathCoordinates);
       const minX = Math.min(...pathCoordinates.map(point => point.x));
       const minY = Math.min(...pathCoordinates.map(point => point.y));
       const maxX = Math.max(...pathCoordinates.map(point => point.x));
@@ -97,7 +157,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   useEffect(() => {
     if (selectedLetter && audioDuration) {
       // Reset animation value back to 0
-      playAudio();
+      // playAudio();
       animation.setValue(0);
 
       Animated.timing(animation, {
@@ -109,8 +169,26 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   }, [selectedLetter, audioDuration]);
   const strokeDashoffset = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [793, 0],
+    outputRange: [204, 144],
   });
+
+  const getNearestPoint = (x, y) => {
+    let minDistance = Infinity;
+    let nearestPoint = null;
+
+    allSvgPathCoordinates.forEach(point => {
+      const distance = Math.sqrt(
+        Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2),
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestPoint = point;
+      }
+    });
+
+    return nearestPoint;
+  };
+
   useEffect(() => {
     if (baseLineRef.current && secondLineRef.current) {
       const {y: baseLineY} = baseLineRef.current.getBBox();
@@ -137,6 +215,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   return (
     <React.Fragment>
       <Button title={'Play Audio'} onPress={playAudio} />
+      <Button title={'Svg Length'} onPress={distanceBetweenTwoPoints} />
 
       <Svg
         fill={'none'}
@@ -206,6 +285,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
             d={selectedLetter?.path}
             stroke={'gray'}
             opacity={0.5}
+            scale={2}
           />
         )}
         {translateY ? (
@@ -213,17 +293,39 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
             ref={pathRef}
             d={selectedLetter?.path}
             stroke={'white'}
-            strokeDasharray={793}
+            strokeDasharray={144}
             strokeDashoffset={strokeDashoffset}
             translateY={27}
+            scale={2}
           />
         ) : (
           <AnimatedPath
             ref={pathRef}
             d={selectedLetter?.path}
             stroke={'white'}
-            strokeDasharray={793}
+            strokeDasharray={144}
             strokeDashoffset={strokeDashoffset}
+            scale={2}
+          />
+        )}
+        {polyPoints && (
+          <Polyline
+            onPress={event => {
+              const {
+                nativeEvent: {locationX, locationY},
+              } = event;
+              const nearestPoint = getNearestPoint(locationX, locationY);
+              setBreakPointsCoordinates(pre => {
+                return [...pre, nearestPoint];
+              });
+              console.log('nearestPointnearestPointnearestPoint', nearestPoint);
+            }}
+            points={polyPoints}
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            scale={2}
+            strokeDasharray="10,10" // This creates a dotted line
           />
         )}
       </Svg>
