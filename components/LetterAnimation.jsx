@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Animated, Button} from 'react-native';
+import {Animated, Pressable, Text} from 'react-native';
 import {Svg, Path, G, Defs, Line, ClipPath} from 'react-native-svg';
 import {TextToSpeech, convertBufferToBase64} from '../functions/text-to-speech';
 import Sound from 'react-native-sound';
 import {Buffer} from 'buffer';
 import RNFS from 'react-native-fs';
+import {svgPathProperties} from 'svg-path-properties';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const LetterAnimation = ({showLines, selectedLetter}) => {
@@ -16,13 +17,14 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
   const [secondLine, setSecondLine] = useState(0);
   const [fourLine, setFourLine] = useState(0);
   const [translateY, setTranslateY] = useState(false);
-  const pathRef = useRef();
+  const [progress, setProgress] = useState(0);
+  const pathRef = useRef(new svgPathProperties(selectedLetter.path));
+  const pathLength = pathRef.current.getTotalLength();
+
   const baseLineRef = useRef();
   const secondLineRef = useRef();
   const soundRef = useRef(null);
   const animationFrameRef = useRef(null);
-  const [pathLength, setPathLength] = useState(0);
-  const [progress, setProgress] = useState(0);
 
   const startAnimation = duration => {
     console.log('startAnimation', duration);
@@ -72,6 +74,7 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
               return;
             }
             const duration = soundRef.current.getDuration();
+            console.log('duration', duration);
             startAnimation(duration);
           });
         })
@@ -101,9 +104,6 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
 
   useEffect(() => {
     if (pathRef.current) {
-      const svgPathLength = pathRef.current.getTotalLength();
-      console.log('svgPathLength', svgPathLength);
-      setPathLength(svgPathLength);
       if (
         selectedLetter?.type === 'descender' ||
         selectedLetter?.type === 'baseline'
@@ -114,8 +114,25 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
       }
       setBaseLine(54);
       setSecondLine(27);
+
+      let foundLength = null;
+      const targetX = 23.0642099380493164;
+      const targetY = 12.707684516906738;
+
+      for (let i = 0; i <= pathLength; i++) {
+        const point = pathRef.current.getPointAtLength(i);
+        if (
+          Math.abs(point.x - targetX) < 1 &&
+          Math.abs(point.y - targetY) < 1
+        ) {
+          foundLength = i;
+          break;
+        }
+      }
+
+      console.log('foundLength', foundLength);
     }
-  }, [pathRef.current, selectedLetter]);
+  }, [pathRef.current, selectedLetter, pathLength]);
 
   useEffect(() => {
     if (baseLineRef.current && secondLineRef.current) {
@@ -185,19 +202,13 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
 
         {translateY ? (
           <Path
-            ref={pathRef}
             d={selectedLetter?.path}
             stroke={'gray'}
             opacity={0.5}
             translateY={27}
           />
         ) : (
-          <Path
-            ref={pathRef}
-            d={selectedLetter?.path}
-            stroke={'gray'}
-            opacity={0.5}
-          />
+          <Path d={selectedLetter?.path} stroke={'gray'} opacity={0.5} />
         )}
         {translateY ? (
           <AnimatedPath

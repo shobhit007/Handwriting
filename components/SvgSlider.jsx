@@ -18,11 +18,15 @@ const SvgSlider = ({
   const [value, setValue] = useState(initialValue);
   const [maxValueReached, setMaxValueReached] = useState(initialValue);
   const sliderWidth = width - 60; // Adjusting for padding
-  const circleRadius = 22;
+  const circleRadius = 15;
+  const speedFactor = 1;
 
   const properties = useRef(new svgPathProperties(pathData));
 
   const sliderLength = properties.current.getTotalLength();
+  console.log('sliderLength', sliderLength);
+  const svgParts = properties.current.getParts();
+  // console.log('svgParts', svgParts);
 
   useEffect(() => {
     // Update the properties ref whenever the pathData changes
@@ -46,7 +50,7 @@ const SvgSlider = ({
 
   // Convert slider position to value
   const positionToValue = position => {
-    const ratio = position / sliderLength;
+    const ratio = position / (sliderLength * speedFactor);
     return Math.min(Math.max(min + ratio * (max - min), min), max);
   };
 
@@ -54,7 +58,7 @@ const SvgSlider = ({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (evt, gestureState) => {
-      const newValue = positionToValue(gestureState.moveX - 20);
+      const newValue = positionToValue(gestureState.moveX);
       if (newValue > maxValueReached) {
         setValue(newValue);
         setMaxValueReached(newValue);
