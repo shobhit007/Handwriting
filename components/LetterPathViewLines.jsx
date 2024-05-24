@@ -26,7 +26,6 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const [allSvgPathCoordinates, setAllSvgPathCoordinates] = useState(null);
   const [polyPoints, setPolyPoints] = useState(null);
   const [breakPointsCoordinates, setBreakPointsCoordinates] = useState([]);
-  const [animationPathLength, setAnimaitonPathLength] = useState(30);
 
   useEffect(() => {
     if (allSvgPathCoordinates) {
@@ -169,7 +168,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   }, [selectedLetter, audioDuration]);
   const strokeDashoffset = animation.interpolate({
     inputRange: [0, 1],
-    outputRange: [204, 144],
+    outputRange: [204, 0],
   });
 
   const getNearestPoint = (x, y) => {
@@ -293,7 +292,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
             ref={pathRef}
             d={selectedLetter?.path}
             stroke={'white'}
-            strokeDasharray={144}
+            strokeDasharray={0}
             strokeDashoffset={strokeDashoffset}
             translateY={27}
             scale={2}
@@ -303,7 +302,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
             ref={pathRef}
             d={selectedLetter?.path}
             stroke={'white'}
-            strokeDasharray={144}
+            strokeDasharray={0}
             strokeDashoffset={strokeDashoffset}
             scale={2}
           />
@@ -325,7 +324,8 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
             stroke="black"
             strokeWidth="3"
             scale={2}
-            strokeDasharray="10,10" // This creates a dotted line
+            strokeDasharray="10,10"
+            translateY={translateY ? 27 : 0}
           />
         )}
       </Svg>
