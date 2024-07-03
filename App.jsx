@@ -2,8 +2,10 @@ import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Svg, Path, Line, Circle, Text} from 'react-native-svg';
 import Notebook from './components/Notebook';
-import LetterA from './components/LetterA';
+import LetterA from './components/LetterA.1';
 import SvgSlider from './components/SvgSlider';
+import Login from './components/Login';
+import WordFormation from './components/WordFormation';
 
 const viewPortWidth = 300;
 const viewPortHeight = 120;
@@ -51,8 +53,10 @@ const App = () => {
     <View style={styles.container}>
       {/* <Notebook lines={2} gap={50}>
       </Notebook> */}
-      <LetterA />
+      {/* <LetterA /> */}
       {/* <SvgSlider pathData={pathData} /> */}
+      {/* <Login /> */}
+      <WordFormation />
     </View>
   );
 };
@@ -62,6 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'black',
   },
 });
 

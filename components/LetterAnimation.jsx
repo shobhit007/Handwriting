@@ -1,11 +1,10 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Animated, Pressable, Text} from 'react-native';
-import {Svg, Path, G, Defs, Line, ClipPath} from 'react-native-svg';
-import {TextToSpeech, convertBufferToBase64} from '../functions/text-to-speech';
-import Sound from 'react-native-sound';
+import {Animated} from 'react-native';
+import {Svg, Path, Line} from 'react-native-svg';
 import {Buffer} from 'buffer';
 import RNFS from 'react-native-fs';
 import {svgPathProperties} from 'svg-path-properties';
+import {Audio} from 'expo-av';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const LetterAnimation = ({showLines, selectedLetter}) => {
@@ -25,76 +24,161 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
   const secondLineRef = useRef();
   const soundRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const [segmentLengths, setSegmentLengths] = useState([]);
 
-  const startAnimation = duration => {
-    console.log('startAnimation', duration);
-    const startTime = Date.now();
+  // basic animation
+  // const startAnimation = async duration => {
+  //   const startTime = Date.now();
 
+  //   // Play the sound
+  //   await soundRef.current.playAsync();
+
+  //   const animate = () => {
+  //     const elapsedTime = (Date.now() - startTime) / 1000;
+  //     const currentProgress = elapsedTime / duration;
+  //     setProgress(currentProgress);
+  //     if (elapsedTime < duration) {
+  //       animationFrameRef.current = requestAnimationFrame(animate);
+  //     } else {
+  //       setProgress(1);
+  //       console.log('animation finished');
+  //     }
+  //   };
+  //   animationFrameRef.current = requestAnimationFrame(animate);
+  // };
+
+  const startAnimation = async duration => {
     // Play the sound
-    soundRef.current.play(success => {
-      if (!success) {
-        console.log('Sound playback failed');
-      }
-    });
+    await soundRef.current.playAsync();
 
-    const animate = () => {
+    const animate = startTime => {
       const elapsedTime = (Date.now() - startTime) / 1000;
       const currentProgress = elapsedTime / duration;
-      setProgress(currentProgress);
+
+      if (elapsedTime >= 0) {
+        setProgress(currentProgress);
+      }
+
       if (elapsedTime < duration) {
-        animationFrameRef.current = requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(() =>
+          animate(startTime),
+        );
       } else {
         setProgress(1);
         console.log('animation finished');
       }
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
+    // Delay the start of the animation by 500ms
+    setTimeout(() => {
+      const startTime = Date.now(); // Set a new start time after the delay
+      animationFrameRef.current = requestAnimationFrame(() =>
+        animate(startTime),
+      );
+    }, 480);
   };
+
+  // const segmentDurations = [2, 2]; // Durations for each segment in seconds
+
+  // const startAnimation = () => {
+  //   let startTime = Date.now();
+  //   let currentSegment = 0;
+
+  //   const animate = () => {
+  //     const elapsedTime = (Date.now() - startTime) / 1000;
+  //     const duration = segmentDurations[currentSegment];
+  //     let currentProgress = elapsedTime / duration;
+
+  //     if (currentProgress >= 1) {
+  //       currentProgress = 1; // Ensure the current segment completes fully
+  //       setProgress(segmentLengths[currentSegment]);
+
+  //       if (currentSegment < segmentDurations.length - 1) {
+  //         currentSegment += 1;
+  //         setTimeout(() => {
+  //           startTime = Date.now(); // Reset start time for the next segment
+  //           animationFrameRef.current = requestAnimationFrame(animate);
+  //         }, 1000); // Pause for 1 second before starting the next segment
+  //         return;
+  //       }
+  //     } else {
+  //       if (currentSegment === 0) {
+  //         setProgress(currentProgress * segmentLengths[currentSegment]);
+  //       } else {
+  //         setProgress(
+  //           segmentLengths[currentSegment - 1] +
+  //             currentProgress *
+  //               (segmentLengths[currentSegment] -
+  //                 segmentLengths[currentSegment - 1]),
+  //         );
+  //       }
+  //     }
+
+  //     if (currentProgress < 1 || currentSegment < segmentDurations.length) {
+  //       animationFrameRef.current = requestAnimationFrame(animate);
+  //     }
+  //   };
+
+  //   animationFrameRef.current = requestAnimationFrame(animate);
+  // };
+
+  // useEffect(() => {
+  //   segmentLengths.length > 0 && startAnimation();
+  // }, [segmentLengths]);
 
   useEffect(() => {
     if (selectedLetter) {
-      // Buffer data provided
-      const base64AudioData = selectedLetter.audioUrl;
+      const playAudio = async () => {
+        try {
+          if (soundRef.current) {
+            await soundRef.current.unloadAsync();
+          }
 
-      // Decode base64 to binary buffer
-      const buffer = Buffer.from(base64AudioData, 'base64');
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+          }
+          // Buffer data provided
+          const base64AudioData = selectedLetter.audioUrl;
+          // // Decode base64 to binary buffer
+          const buffer = Buffer.from(base64AudioData, 'base64');
 
-      // Write the buffer to a file
-      const filePath = RNFS.DocumentDirectoryPath + '/dummy.mp3';
-      RNFS.writeFile(filePath, buffer.toString('base64'), 'base64')
-        .then(() => {
-          console.log('File written successfully:', filePath);
+          // // Write the buffer to a file
+          const filePath = RNFS.DocumentDirectoryPath + '/dummy.mp3';
+          await RNFS.writeFile(filePath, buffer.toString('base64'), 'base64');
+          const {sound} = await Audio.Sound.createAsync({uri: filePath});
+          soundRef.current = sound;
+          const {durationMillis} = await sound.getStatusAsync();
+          const duration = durationMillis / 1000;
+          console.log('duration', duration);
+          pathRef.current = new svgPathProperties(selectedLetter.path);
+          // const segments = segmentDurations.map(
+          //   (duration, index) =>
+          //     (pathRef.current.getTotalLength() / segmentDurations.length) *
+          //     (index + 1),
+          // );
+          // setSegmentLengths(segments);
+          startAnimation(duration);
+        } catch (error) {
+          console.log(error);
+        }
+      };
 
-          // Initialize sound from file path
-          soundRef.current = new Sound(filePath, '', error => {
-            if (error) {
-              console.error('Failed to load sound', error);
-              setError('Failed to load sound');
-              return;
-            }
-            const duration = soundRef.current.getDuration();
-            console.log('duration', duration);
-            startAnimation(duration);
-          });
-        })
-        .catch(error => {
-          console.error('Failed to write file', error);
-          setError('Failed to write file');
-        });
-      if (soundRef.current) {
-        soundRef.current.release();
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      playAudio();
     }
   }, [selectedLetter]);
 
   useEffect(() => {
     return () => {
       if (soundRef.current) {
-        soundRef.current.release();
+        const unloadSound = async () => {
+          try {
+            soundRef.current.unloadAsync();
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        unloadSound();
       }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -142,7 +226,7 @@ const LetterAnimation = ({showLines, selectedLetter}) => {
     }
   }, [baseLineRef.current, secondLineRef.current]);
 
-  const dashOffset = pathLength - pathLength * progress;
+  const dashOffset = pathLength - progress * pathLength;
 
   return (
     <React.Fragment>
