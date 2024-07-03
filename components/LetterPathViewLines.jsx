@@ -26,6 +26,7 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
   const [allSvgPathCoordinates, setAllSvgPathCoordinates] = useState(null);
   const [polyPoints, setPolyPoints] = useState(null);
   const [breakPointsCoordinates, setBreakPointsCoordinates] = useState([]);
+  const [nearestPoints, setNearestPoints] = useState([]);
 
   useEffect(() => {
     if (allSvgPathCoordinates) {
@@ -211,6 +212,9 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
       setSecondLine(27);
     }
   }, [dimensions]);
+
+  console.log('nearestPoints', nearestPoints);
+
   return (
     <React.Fragment>
       <Button title={'Play Audio'} onPress={playAudio} />
@@ -317,7 +321,9 @@ const LetterPathViewLines = ({showLines, selectedLetter}) => {
               setBreakPointsCoordinates(pre => {
                 return [...pre, nearestPoint];
               });
-              console.log('nearestPointnearestPointnearestPoint', nearestPoint);
+              setNearestPoints(pre => {
+                return [...pre, nearestPoint];
+              });
             }}
             points={polyPoints}
             fill="none"
