@@ -5,6 +5,14 @@ import {Buffer} from 'buffer';
 import RNFS from 'react-native-fs';
 import {svgPathProperties} from 'svg-path-properties';
 import {Audio} from 'expo-av';
+<svg
+  width="142"
+  height="156"
+  viewBox="0 0 142 156"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path d="" fill="black" />
+</svg>;
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const LetterG = ({showLines, selectedLetter}) => {
@@ -70,33 +78,44 @@ const LetterG = ({showLines, selectedLetter}) => {
   }, []);
 
   useEffect(() => {
-    if (segmentDurations.length > 0) {
-      startAnimation();
+    const playAnimation = async () => {
+      const audio = selectedLetter.segments[0].audioBuffer;
+      const base64AudioData = audio;
+      const buffer = Buffer.from(base64AudioData, 'base64');
+      const filePath = RNFS.DocumentDirectoryPath + '/segment' + '.mp3';
+      await RNFS.writeFile(filePath, buffer.toString('base64'), 'base64');
+      const {sound} = await Audio.Sound.createAsync({uri: filePath});
+      soundRef.current = sound;
+      startAnimation(4);
+    };
+
+    if (selectedLetter) {
+      playAnimation();
     }
-  }, [segmentDurations]);
+  }, [selectedLetter]);
 
   // basic animation
-  // const startAnimation = async (duration, callback) => {
-  //   const startTime = Date.now();
+  const startAnimation = async (duration, callback) => {
+    const startTime = Date.now();
 
-  //   // Play the sound
-  //   await soundRef.current.playAsync();
+    // Play the sound
+    await soundRef.current.playAsync();
 
-  //   const animate = () => {
-  //     const elapsedTime = (Date.now() - startTime) / 1000;
-  //     const currentProgress = elapsedTime / duration;
-  //     setProgress(currentProgress);
-  //     if (elapsedTime < duration) {
-  //       animationFrameRef.current = requestAnimationFrame(animate);
-  //     } else {
-  //       setProgress(1);
-  //       // console.log('animation finished');
-  //       callback(true);
-  //     }
-  //   };
+    const animate = () => {
+      const elapsedTime = (Date.now() - startTime) / 1000;
+      const currentProgress = elapsedTime / duration;
+      setProgress(currentProgress);
+      if (elapsedTime < duration) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setProgress(1);
+        console.log('animation finished');
+        // callback(true);
+      }
+    };
 
-  //   animationFrameRef.current = requestAnimationFrame(animate);
-  // };
+    animationFrameRef.current = requestAnimationFrame(animate);
+  };
 
   // Do not remove this code
   // const startAnimation = async () => {
@@ -170,75 +189,77 @@ const LetterG = ({showLines, selectedLetter}) => {
   //   // Start playing audio for the first segment immediately
   //   await playAudioForSegment(currentSegment);
   // };
-  const startAnimation = async () => {
-    const playAudioForSegment = async segment => {
-      const audioBuffer = selectedLetter.segments[segment].audioBuffer;
-      const base64AudioData = audioBuffer;
-      const buffer = Buffer.from(base64AudioData, 'base64');
-      const filePath =
-        RNFS.DocumentDirectoryPath + '/segment' + segment + '.mp3';
-      await RNFS.writeFile(filePath, buffer.toString('base64'), 'base64');
-      const {sound} = await Audio.Sound.createAsync({uri: filePath});
-      await sound.playAsync();
-      const status = await sound.getStatusAsync();
-      return {sound, duration: status.durationMillis / 1000};
-    };
 
-    const animateSegment = async (
-      duration,
-      segmentLengthStart,
-      segmentLengthEnd,
-    ) => {
-      return new Promise(resolve => {
-        let startTime = null;
+  // currently use code
+  // const startAnimation = async () => {
+  //   const playAudioForSegment = async segment => {
+  //     const audioBuffer = selectedLetter.segments[segment].audioBuffer;
+  //     const base64AudioData = audioBuffer;
+  //     const buffer = Buffer.from(base64AudioData, 'base64');
+  //     const filePath =
+  //       RNFS.DocumentDirectoryPath + '/segment' + segment + '.mp3';
+  //     await RNFS.writeFile(filePath, buffer.toString('base64'), 'base64');
+  //     const {sound} = await Audio.Sound.createAsync({uri: filePath});
+  //     await sound.playAsync();
+  //     const status = await sound.getStatusAsync();
+  //     return {sound, duration: status.durationMillis / 1000};
+  //   };
 
-        const animate = timestamp => {
-          if (!startTime) startTime = timestamp;
-          const elapsedTime = (timestamp - startTime) / 1000;
-          const normalizedProgress = elapsedTime / duration;
+  //   const animateSegment = async (
+  //     duration,
+  //     segmentLengthStart,
+  //     segmentLengthEnd,
+  //   ) => {
+  //     return new Promise(resolve => {
+  //       let startTime = null;
 
-          if (elapsedTime < duration) {
-            setProgress(
-              segmentLengthStart +
-                normalizedProgress * (segmentLengthEnd - segmentLengthStart),
-            );
-            animationFrameRef.current = requestAnimationFrame(animate);
-          } else {
-            setProgress(segmentLengthEnd);
-            resolve(); // Animation is complete
-          }
-        };
+  //       const animate = timestamp => {
+  //         if (!startTime) startTime = timestamp;
+  //         const elapsedTime = (timestamp - startTime) / 1000;
+  //         const normalizedProgress = elapsedTime / duration;
 
-        // Start animation with a delay of 1 second
-        setTimeout(() => {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        }, 1000); // 1-second delay before starting the animation
-      });
-    };
+  //         if (elapsedTime < duration) {
+  //           setProgress(
+  //             segmentLengthStart +
+  //               normalizedProgress * (segmentLengthEnd - segmentLengthStart),
+  //           );
+  //           animationFrameRef.current = requestAnimationFrame(animate);
+  //         } else {
+  //           setProgress(segmentLengthEnd);
+  //           resolve(); // Animation is complete
+  //         }
+  //       };
 
-    const playAndAnimateSegment = async segment => {
-      const segmentLengthStart =
-        segment === 0 ? 0 : segmentLengths[segment - 1];
-      const segmentLengthEnd = segmentLengths[segment];
-      const {sound, duration} = await playAudioForSegment(segment);
-      await animateSegment(duration, segmentLengthStart, segmentLengthEnd);
-      await sound.stopAsync();
-    };
+  //       // Start animation with a delay of 1 second
+  //       setTimeout(() => {
+  //         animationFrameRef.current = requestAnimationFrame(animate);
+  //       }, 1000); // 1-second delay before starting the animation
+  //     });
+  //   };
 
-    const processSegments = async () => {
-      for (
-        let currentSegment = 0;
-        currentSegment < segmentDurations.length;
-        currentSegment++
-      ) {
-        await playAndAnimateSegment(currentSegment);
-        // Pause for 1 second before moving to the next segment
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    };
+  //   const playAndAnimateSegment = async segment => {
+  //     const segmentLengthStart =
+  //       segment === 0 ? 0 : segmentLengths[segment - 1];
+  //     const segmentLengthEnd = segmentLengths[segment];
+  //     const {sound, duration} = await playAudioForSegment(segment);
+  //     await animateSegment(duration, segmentLengthStart, segmentLengthEnd);
+  //     await sound.stopAsync();
+  //   };
 
-    await processSegments();
-  };
+  //   const processSegments = async () => {
+  //     for (
+  //       let currentSegment = 0;
+  //       currentSegment < segmentDurations.length;
+  //       currentSegment++
+  //     ) {
+  //       await playAndAnimateSegment(currentSegment);
+  //       // Pause for 1 second before moving to the next segment
+  //       await new Promise(resolve => setTimeout(resolve, 500));
+  //     }
+  //   };
+
+  //   await processSegments();
+  // };
 
   // animation with a pause after each segment
   // const startAnimation = async () => {
@@ -353,24 +374,24 @@ const LetterG = ({showLines, selectedLetter}) => {
   //   }
   // }, [selectedLetter]);
 
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        const unloadSound = async () => {
-          try {
-            soundRef.current.unloadAsync();
-          } catch (error) {
-            console.log(error);
-          }
-        };
+  // useEffect(() => {
+  //   return () => {
+  //     if (soundRef.current) {
+  //       const unloadSound = async () => {
+  //         try {
+  //           soundRef.current.unloadAsync();
+  //         } catch (error) {
+  //           console.log(error);
+  //         }
+  //       };
 
-        unloadSound();
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
+  //       unloadSound();
+  //     }
+  //     if (animationFrameRef.current) {
+  //       cancelAnimationFrame(animationFrameRef.current);
+  //     }
+  //   };
+  // }, []);
 
   // useEffect(() => {
   //   if (pathRef.current) {
@@ -412,7 +433,9 @@ const LetterG = ({showLines, selectedLetter}) => {
   //   }
   // }, [baseLineRef.current, secondLineRef.current]);
 
-  const dashOffset = pathLength - progress;
+  // const dashOffset = pathLength - progress;
+  const dashOffset = pathLength * progress * -1;
+  console.log('dashoffset', dashOffset);
 
   return (
     <React.Fragment>
@@ -429,7 +452,6 @@ const LetterG = ({showLines, selectedLetter}) => {
         <Text style={{color: 'white'}}>Replay</Text>
       </Pressable>
       <Svg
-        fill={'none'}
         width={SVG_WIDTH}
         height={SVG_HEIGHT}
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}>
@@ -488,9 +510,15 @@ const LetterG = ({showLines, selectedLetter}) => {
             stroke={'gray'}
             opacity={0.5}
             translateY={27}
+            strokeWidth={3}
           />
         ) : (
-          <Path d={selectedLetter?.path} stroke={'gray'} opacity={0.5} />
+          <Path
+            d={selectedLetter?.path}
+            stroke={'gray'}
+            opacity={0.5}
+            strokeWidth={3}
+          />
         )}
         {translateY ? (
           <AnimatedPath
@@ -499,6 +527,7 @@ const LetterG = ({showLines, selectedLetter}) => {
             strokeDasharray={pathLength}
             strokeDashoffset={dashOffset}
             translateY={27}
+            strokeWidth={3}
           />
         ) : (
           <AnimatedPath
@@ -506,6 +535,7 @@ const LetterG = ({showLines, selectedLetter}) => {
             stroke={'white'}
             strokeDasharray={pathLength}
             strokeDashoffset={dashOffset}
+            strokeWidth={3}
           />
         )}
       </Svg>
