@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState, useMemo} from 'react';
-import {View, Animated, Text, Pressable} from 'react-native';
+import {View, Animated, Text, Pressable, StyleSheet} from 'react-native';
 import {Path, Svg, G} from 'react-native-svg';
 import {svgPathProperties} from 'svg-path-properties';
 import {generateLetterToSVG} from '../utils/feature';
@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['e.alt'];
+    generatedLetters = ['b.mn.alt', 'm.alt'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -20,49 +20,83 @@ const AnimationComponent = () => {
       const previousSegment = previousLetter
         ? JSON.parse(JSON.stringify(AlphabetLetters[previousLetter]))
         : null;
-      // for letter a
-      if (previousSegment && previousSegment.curve === '1') {
+
+      if (
+        previousLetter &&
+        previousLetter.includes('caps') &&
+        'acdgoq'.split('').includes(currentLetter.split('.')[0])
+      ) {
+        console.log('caps');
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
-            attr: {...svg.attr, translateX: svg.attr.translateX - 36},
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 38,
+            },
           };
         });
         segment = {svgs};
-      } else if (previousSegment && previousSegment.curve === '2') {
+      } else if (
+        currentLetter.includes('r.alt') ||
+        currentLetter.includes('s.alt')
+      ) {
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
-            attr: {...svg.attr, translateX: svg.attr.translateX - 8},
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 14,
+            },
           };
         });
         segment = {svgs};
-      } else if (previousSegment && previousSegment.curve === '3') {
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {...svg.attr, translateX: svg.attr.translateX - 8},
-          };
-        });
-        segment = {svgs};
+      } else if (previousLetter && currentLetter.includes('l.alt')) {
+        console.log('l.alt');
+        if (previousSegment) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 24,
+              },
+            };
+          });
+          segment = {svgs};
+        }
+      } else {
+        console.log('all');
+        if (previousSegment) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 8,
+              },
+            };
+          });
+          segment = {svgs};
+        }
       }
 
       generatedSegments.push(segment);
     }
 
-    generatedSegments = generatedSegments.map(segment => {
-      const svgs = segment.svgs.map(svg => {
-        if (svg.type === 'curve') {
-          return {
-            ...svg,
-            attr: {...svg.attr, translateX: -6},
-          };
-        }
-        return svg;
-      });
+    // generatedSegments = generatedSegments.map(segment => {
+    //   const svgs = segment.svgs.map(svg => {
+    //     if (svg.type === 'curve') {
+    //       return {
+    //         ...svg,
+    //         attr: {...svg.attr, translateX: svg.attr.translateX - 8},
+    //       };
+    //     }
+    //     return svg;
+    //   });
 
-      return {...segment, svgs};
-    });
+    //   return {...segment, svgs};
+    // });
 
     setSegments(generatedSegments);
   }, []);
@@ -471,7 +505,9 @@ const AnimationComponent = () => {
 // });
 
 // third version with scaling svgs
-const RenderSVG = React.memo(({segments, scale = 0.9}) => {
+
+const STROKE_WIDTH = 8;
+const RenderSVG = React.memo(({segments, scale = 1.25}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -523,7 +559,7 @@ const RenderSVG = React.memo(({segments, scale = 0.9}) => {
   };
 
   useEffect(() => {
-    segments.length > 0 && playNextAnimation(0, 0);
+    // segments.length > 0 && playNextAnimation(0, 0);
 
     return () => {
       if (animationFrameRef.current) {
@@ -539,19 +575,33 @@ const RenderSVG = React.memo(({segments, scale = 0.9}) => {
         return (
           acc +
           (currSegment.svgs.length > 0
-            ? currSegment.svgs[currSegment.svgs.length - 1].attr.translateX *
-              scale
+            ? currSegment.svgs[currSegment.svgs.length - 1].letter
+              ? 0
+              : currSegment.svgs[currSegment.svgs.length - 1].attr.translateX *
+                scale
             : 0)
         );
       }, 0);
 
       return (
         <View
+          // onLayout={handleLayout}
           key={segmentIndex}
-          style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            // borderWidth: StyleSheet.hairlineWidth,
+            // borderColor: 'white',
+          }}>
           {segment.svgs.map((svg, index) => {
-            const {width, height, viewBox, translateX, ...otherProps} =
-              svg.attr;
+            const {
+              width,
+              height,
+              viewBox,
+              translateX,
+              translateY,
+              ...otherProps
+            } = svg.attr;
             const scaledWidth = width * scale;
             const scaledHeight = height * scale;
             const pathLength = new svgPathProperties(svg.path).getTotalLength();
@@ -564,8 +614,9 @@ const RenderSVG = React.memo(({segments, scale = 0.9}) => {
               `${segmentIndex}-${index}`,
             );
 
-            const effectiveTranslateX =
-              (translateX || 0) * scale + translationX;
+            let effectiveTranslateX = (translateX || 0) * scale + translationX;
+
+            let effectiveTranslateY = translateY * scale;
 
             return (
               <Svg
@@ -576,18 +627,21 @@ const RenderSVG = React.memo(({segments, scale = 0.9}) => {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 translateX={effectiveTranslateX}
-                style={{zIndex: svg.type === 'curve' ? 1 : 0}}
+                translateY={effectiveTranslateY}
+                // style={{zIndex: svg.type === 'curve' ? 1 : 0}}
                 {...otherProps}>
                 <Path
                   d={svg.path}
                   stroke={'white'}
-                  strokeWidth="8"
+                  // stroke={'gray'}
+                  strokeWidth={STROKE_WIDTH}
                   strokeLinecap="round"
                 />
                 <Path
                   d={svg.path}
                   stroke={isCompleted ? 'white' : 'gray'}
-                  strokeWidth="8"
+                  // stroke={'gray'}
+                  strokeWidth={STROKE_WIDTH}
                   strokeLinecap="round"
                   strokeDasharray={pathLength}
                   strokeDashoffset={dashOffset}
