@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['b.mn.alt', 'm.alt'];
+    generatedLetters = ['h.alt', 'a.vw.alt', 'v.left.alt'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -38,8 +38,9 @@ const AnimationComponent = () => {
         });
         segment = {svgs};
       } else if (
-        currentLetter.includes('r.alt') ||
-        currentLetter.includes('s.alt')
+        previousLetter &&
+        previousLetter.includes('b') &&
+        (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
       ) {
         const svgs = segment.svgs.map(svg => {
           return {
@@ -65,20 +66,33 @@ const AnimationComponent = () => {
           });
           segment = {svgs};
         }
+      } else if (
+        previousLetter &&
+        previousLetter === 'a.rs.alt' &&
+        (currentLetter === 'r.alt' || currentLetter === 's.alt')
+      ) {
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 14,
+            },
+          };
+        });
+        segment = {svgs};
       } else {
         console.log('all');
-        if (previousSegment) {
-          const svgs = segment.svgs.map(svg => {
-            return {
-              ...svg,
-              attr: {
-                ...svg.attr,
-                translateX: svg.attr.translateX - 8,
-              },
-            };
-          });
-          segment = {svgs};
-        }
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 8,
+            },
+          };
+        });
+        segment = {svgs};
       }
 
       generatedSegments.push(segment);
