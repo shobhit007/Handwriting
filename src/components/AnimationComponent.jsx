@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['h.alt', 'a.vw.alt', 'v.left.alt'];
+    generatedLetters = ['s.alt', 'a.base'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -604,8 +604,8 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
           style={{
             flexDirection: 'row',
             alignItems: 'flex-end',
-            // borderWidth: StyleSheet.hairlineWidth,
-            // borderColor: 'white',
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: 'white',
           }}>
           {segment.svgs.map((svg, index) => {
             const {
