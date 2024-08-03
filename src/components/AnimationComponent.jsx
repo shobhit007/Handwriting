@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['s.alt', 'a.base'];
+    generatedLetters = ['o.alt', 'o.x.alt', 'x.alt'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -81,6 +81,29 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
+      } else if (currentLetter === 'j.alt' || currentLetter === 'j.base') {
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 28,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (previousLetter && currentLetter === 'x.alt') {
+        console.log('x.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 12,
+            },
+          };
+        });
+        segment = {svgs};
       } else {
         console.log('all');
         const svgs = segment.svgs.map(svg => {
@@ -127,7 +150,7 @@ const AnimationComponent = () => {
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          paddingHorizontal: 16,
+          paddingHorizontal: 80,
         }}>
         <RenderSVG segments={segments} />
       </View>
@@ -604,8 +627,8 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
           style={{
             flexDirection: 'row',
             alignItems: 'flex-end',
-            borderWidth: StyleSheet.hairlineWidth,
-            borderColor: 'white',
+            // borderWidth: StyleSheet.hairlineWidth,
+            // borderColor: 'white',
           }}>
           {segment.svgs.map((svg, index) => {
             const {
@@ -631,6 +654,8 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
             let effectiveTranslateX = (translateX || 0) * scale + translationX;
 
             let effectiveTranslateY = translateY * scale;
+
+            console.log('effectiveTraslateX', effectiveTranslateX);
 
             return (
               <Svg
