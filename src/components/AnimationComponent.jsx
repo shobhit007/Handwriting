@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['o.alt', 'o.x.alt', 'x.alt'];
+    generatedLetters = ['z.alt', 'z.caps.alt', 'a.alt'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -100,6 +100,18 @@ const AnimationComponent = () => {
             attr: {
               ...svg.attr,
               translateX: svg.attr.translateX - 12,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (previousLetter === 'i.alt') {
+        console.log('i.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 22,
             },
           };
         });
