@@ -11,7 +11,7 @@ const AnimationComponent = () => {
   useEffect(() => {
     const letter = 'p';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['z.alt', 'z.caps.alt', 'a.alt'];
+    generatedLetters = ['a.alt', 'a.asc.alt', 'l.alt'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -32,7 +32,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 38,
+              translateX: svg.attr.translateX - 34,
             },
           };
         });
@@ -68,7 +68,7 @@ const AnimationComponent = () => {
         }
       } else if (
         previousLetter &&
-        previousLetter === 'a.rs.alt' &&
+        (previousLetter === 'a.rs.alt' || previousLetter === 'z.rs.alt') &&
         (currentLetter === 'r.alt' || currentLetter === 's.alt')
       ) {
         const svgs = segment.svgs.map(svg => {
@@ -116,6 +116,34 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
+      } else if (
+        previousLetter &&
+        // previousLetter === 'z.o.alt' &&
+        currentLetter === 'o.alt'
+      ) {
+        console.log('o.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 11,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (previousLetter && currentLetter === 'z.alt') {
+        console.log('z.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 28,
+            },
+          };
+        });
+        segment = {svgs};
       } else {
         console.log('all');
         const svgs = segment.svgs.map(svg => {
@@ -123,7 +151,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 8,
+              translateX: svg.attr.translateX - 6,
             },
           };
         });
@@ -133,20 +161,6 @@ const AnimationComponent = () => {
       generatedSegments.push(segment);
     }
 
-    // generatedSegments = generatedSegments.map(segment => {
-    //   const svgs = segment.svgs.map(svg => {
-    //     if (svg.type === 'curve') {
-    //       return {
-    //         ...svg,
-    //         attr: {...svg.attr, translateX: svg.attr.translateX - 8},
-    //       };
-    //     }
-    //     return svg;
-    //   });
-
-    //   return {...segment, svgs};
-    // });
-
     setSegments(generatedSegments);
   }, []);
 
@@ -154,7 +168,6 @@ const AnimationComponent = () => {
     <View
       style={{
         flex: 1,
-        paddingHorizontal: 20,
         justifyContent: 'center',
         alignItems: 'center',
       }}>
@@ -162,7 +175,7 @@ const AnimationComponent = () => {
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          paddingHorizontal: 80,
+          paddingHorizontal: 40,
         }}>
         <RenderSVG segments={segments} />
       </View>
@@ -556,7 +569,7 @@ const AnimationComponent = () => {
 // third version with scaling svgs
 
 const STROKE_WIDTH = 8;
-const RenderSVG = React.memo(({segments, scale = 1.25}) => {
+const RenderSVG = React.memo(({segments, scale = 0.9}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -666,8 +679,6 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
             let effectiveTranslateX = (translateX || 0) * scale + translationX;
 
             let effectiveTranslateY = translateY * scale;
-
-            console.log('effectiveTraslateX', effectiveTranslateX);
 
             return (
               <Svg
