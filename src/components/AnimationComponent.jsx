@@ -9,9 +9,10 @@ const AnimationComponent = () => {
   const [segments, setSegments] = useState([]);
 
   useEffect(() => {
-    const letter = 'p';
+    const letter = 'ee';
     let generatedLetters = generateLetterToSVG(letter);
-    generatedLetters = ['a.alt', 'a.asc.alt', 'l.alt'];
+    console.log('generatedLetters', generatedLetters);
+    generatedLetters = ['a.alt', 'a.alt.caps', 'a.alt', 'a.alt.caps', 'a.base'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -32,7 +33,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 34,
+              translateX: svg.attr.translateX - 38,
             },
           };
         });
@@ -47,7 +48,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 14,
+              translateX: svg.attr.translateX - 10,
             },
           };
         });
@@ -60,7 +61,7 @@ const AnimationComponent = () => {
               ...svg,
               attr: {
                 ...svg.attr,
-                translateX: svg.attr.translateX - 24,
+                translateX: svg.attr.translateX - 25,
               },
             };
           });
@@ -68,7 +69,9 @@ const AnimationComponent = () => {
         }
       } else if (
         previousLetter &&
-        (previousLetter === 'a.rs.alt' || previousLetter === 'z.rs.alt') &&
+        (previousLetter === 'a.rs.alt' ||
+          previousLetter === 'z.rs.alt' ||
+          previousLetter === 'q.rs.alt') &&
         (currentLetter === 'r.alt' || currentLetter === 's.alt')
       ) {
         const svgs = segment.svgs.map(svg => {
@@ -76,18 +79,22 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 14,
+              translateX: svg.attr.translateX - 10,
             },
           };
         });
         segment = {svgs};
-      } else if (currentLetter === 'j.alt' || currentLetter === 'j.base') {
+      } else if (
+        currentLetter === 'j.alt' ||
+        currentLetter === 'j.base' ||
+        currentLetter === 'f.alt'
+      ) {
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 28,
+              translateX: svg.attr.translateX - 46,
             },
           };
         });
@@ -144,6 +151,18 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
+      } else if (previousLetter && previousLetter === 'f.alt') {
+        console.log('f.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 24,
+            },
+          };
+        });
+        segment = {svgs};
       } else {
         console.log('all');
         const svgs = segment.svgs.map(svg => {
@@ -151,7 +170,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 6,
+              translateX: svg.attr.translateX - 8,
             },
           };
         });
@@ -569,7 +588,7 @@ const AnimationComponent = () => {
 // third version with scaling svgs
 
 const STROKE_WIDTH = 8;
-const RenderSVG = React.memo(({segments, scale = 0.9}) => {
+const RenderSVG = React.memo(({segments, scale = 1.25}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
