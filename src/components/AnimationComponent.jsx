@@ -9,10 +9,10 @@ const AnimationComponent = () => {
   const [segments, setSegments] = useState([]);
 
   useEffect(() => {
-    const letter = 'ee';
+    const letter = 'ya';
     let generatedLetters = generateLetterToSVG(letter);
     console.log('generatedLetters', generatedLetters);
-    generatedLetters = ['a.alt', 'a.alt.caps', 'a.alt', 'a.alt.caps', 'a.base'];
+    generatedLetters = ['a.left', 'a.z.alt', 'z.right'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -84,11 +84,19 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (
-        currentLetter === 'j.alt' ||
-        currentLetter === 'j.base' ||
-        currentLetter === 'f.alt'
-      ) {
+      } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 28,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (currentLetter === 'f.alt' || currentLetter === 'f.right') {
+        console.log('f.alt || f.right');
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
@@ -111,7 +119,7 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (previousLetter === 'i.alt') {
+      } else if (previousLetter === 'i.alt' || previousLetter === 'i.left') {
         console.log('i.alt');
         const svgs = segment.svgs.map(svg => {
           return {
@@ -139,7 +147,10 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (previousLetter && currentLetter === 'z.alt') {
+      } else if (
+        previousLetter &&
+        (currentLetter === 'z.alt' || currentLetter === 'z.right')
+      ) {
         console.log('z.alt');
         const svgs = segment.svgs.map(svg => {
           return {

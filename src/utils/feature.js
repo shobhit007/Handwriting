@@ -89,9 +89,9 @@ export const generateLetterToSVG = str => {
     let prevChar = i > 0 ? strArr[i - 1] : null;
 
     if (prevChar && !nextChar) {
-      svgLetters.push(`${char}.right`);
+      svgLetters.push(`${char}.base`);
     } else if (!prevChar && nextChar) {
-      svgLetters.push(`${char}.left`, `${char}.alt`);
+      svgLetters.push(`${char}.left`);
       if (BASELINE_CHARS.includes(char)) {
         if (CAPS_CURVE.includes(nextChar)) svgLetters.push('a.alt.caps');
         else if (ASC_CURVE.includes(nextChar)) svgLetters.push('a.asc.alt');
