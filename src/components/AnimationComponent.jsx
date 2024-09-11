@@ -5,14 +5,16 @@ import {svgPathProperties} from 'svg-path-properties';
 import {generateLetterToSVG} from '../utils/feature';
 import {AlphabetLetters} from '../utils/letters';
 
+const baseLetters = 'adhiklmnprtux';
+
 const AnimationComponent = () => {
   const [segments, setSegments] = useState([]);
 
   useEffect(() => {
-    const letter = 'ya';
+    const letter = 'aa';
     let generatedLetters = generateLetterToSVG(letter);
     console.log('generatedLetters', generatedLetters);
-    generatedLetters = ['a.left', 'a.z.alt', 'z.right'];
+    generatedLetters = ['v.left', 'v.z.alt', 'z.right'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
@@ -53,8 +55,8 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (previousLetter && currentLetter.includes('l.alt')) {
-        console.log('l.alt');
+      } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
+        console.log('b.asc.alt');
         if (previousSegment) {
           const svgs = segment.svgs.map(svg => {
             return {
@@ -95,14 +97,20 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (currentLetter === 'f.alt' || currentLetter === 'f.right') {
-        console.log('f.alt || f.right');
+      } else if (
+        previousLetter &&
+        (currentLetter === 'h.alt' ||
+          currentLetter === 'h.right' ||
+          currentLetter === 'k.alt' ||
+          currentLetter === 'k.right')
+      ) {
+        console.log('h.alt || k.right');
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 46,
+              translateX: svg.attr.translateX - 22,
             },
           };
         });
@@ -133,8 +141,23 @@ const AnimationComponent = () => {
         segment = {svgs};
       } else if (
         previousLetter &&
-        // previousLetter === 'z.o.alt' &&
-        currentLetter === 'o.alt'
+        previousLetter === 'o.o.alt' &&
+        (currentLetter === 'o.alt' || currentLetter === 'o.right')
+      ) {
+        console.log('o.o.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 12,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (
+        previousLetter &&
+        (currentLetter === 'o.alt' || currentLetter === 'o.right')
       ) {
         console.log('o.alt');
         const svgs = segment.svgs.map(svg => {
@@ -142,7 +165,7 @@ const AnimationComponent = () => {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 11,
+              translateX: svg.attr.translateX - 10,
             },
           };
         });
@@ -162,14 +185,32 @@ const AnimationComponent = () => {
           };
         });
         segment = {svgs};
-      } else if (previousLetter && previousLetter === 'f.alt') {
+      } else if (
+        previousLetter &&
+        (previousLetter === 'f.alt' || previousLetter === 'f.left')
+      ) {
         console.log('f.alt');
         const svgs = segment.svgs.map(svg => {
           return {
             ...svg,
             attr: {
               ...svg.attr,
-              translateX: svg.attr.translateX - 24,
+              translateX: svg.attr.translateX - 28,
+            },
+          };
+        });
+        segment = {svgs};
+      } else if (
+        previousLetter &&
+        (currentLetter === 'f.alt' || currentLetter === 'f.right')
+      ) {
+        console.log('f.right || f.alt');
+        const svgs = segment.svgs.map(svg => {
+          return {
+            ...svg,
+            attr: {
+              ...svg.attr,
+              translateX: svg.attr.translateX - 45,
             },
           };
         });
@@ -599,7 +640,7 @@ const AnimationComponent = () => {
 // third version with scaling svgs
 
 const STROKE_WIDTH = 8;
-const RenderSVG = React.memo(({segments, scale = 1.25}) => {
+const RenderSVG = React.memo(({segments, scale = 1.7}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -677,13 +718,10 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
 
       return (
         <View
-          // onLayout={handleLayout}
           key={segmentIndex}
           style={{
             flexDirection: 'row',
             alignItems: 'flex-end',
-            // borderWidth: StyleSheet.hairlineWidth,
-            // borderColor: 'white',
           }}>
           {segment.svgs.map((svg, index) => {
             const {
@@ -694,9 +732,12 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
               translateY,
               ...otherProps
             } = svg.attr;
+
             const scaledWidth = width * scale;
             const scaledHeight = height * scale;
+
             const pathLength = new svgPathProperties(svg.path).getTotalLength();
+
             const dashOffset =
               `${segmentIndex}-${index}` ===
               `${currentSegmentIndex}-${currentSvgIndex}`
@@ -718,23 +759,22 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
                 viewBox={viewBox}
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                {...otherProps}
                 translateX={effectiveTranslateX}
-                translateY={effectiveTranslateY}
-                // style={{zIndex: svg.type === 'curve' ? 1 : 0}}
-                {...otherProps}>
+                translateY={effectiveTranslateY}>
                 <Path
                   d={svg.path}
                   stroke={'white'}
-                  // stroke={'gray'}
                   strokeWidth={STROKE_WIDTH}
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
                 <Path
                   d={svg.path}
                   stroke={isCompleted ? 'white' : 'gray'}
-                  // stroke={'gray'}
                   strokeWidth={STROKE_WIDTH}
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                   strokeDasharray={pathLength}
                   strokeDashoffset={dashOffset}
                 />

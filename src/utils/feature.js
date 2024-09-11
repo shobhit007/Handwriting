@@ -89,7 +89,11 @@ export const generateLetterToSVG = str => {
     let prevChar = i > 0 ? strArr[i - 1] : null;
 
     if (prevChar && !nextChar) {
-      svgLetters.push(`${char}.base`);
+      if (char === 'a' || char === 'd') {
+        svgLetters.push(`${char}.base`);
+      } else {
+        svgLetters.push(`${char}.right`);
+      }
     } else if (!prevChar && nextChar) {
       svgLetters.push(`${char}.left`);
       if (BASELINE_CHARS.includes(char)) {
