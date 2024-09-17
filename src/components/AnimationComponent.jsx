@@ -11,225 +11,265 @@ const AnimationComponent = () => {
   const [segments, setSegments] = useState([]);
 
   useEffect(() => {
-    const letter = 'aa';
+    const letter = 'ned';
     let generatedLetters = generateLetterToSVG(letter);
     console.log('generatedLetters', generatedLetters);
-    generatedLetters = ['v.left', 'v.z.alt', 'z.right'];
+    // generatedLetters = ['g.e.left', 'desc.e.alt', 'e.right'];
     let generatedSegments = [];
     for (let i = 0; i < generatedLetters.length; i++) {
       const currentLetter = generatedLetters[i];
       const previousLetter = generatedLetters[i - 1];
-      let segment = JSON.parse(JSON.stringify(AlphabetLetters[currentLetter]));
+      const alphabetLetter = AlphabetLetters[currentLetter];
+      let segment = alphabetLetter
+        ? JSON.parse(JSON.stringify(alphabetLetter))
+        : null;
+
       const previousSegment = previousLetter
         ? JSON.parse(JSON.stringify(AlphabetLetters[previousLetter]))
         : null;
 
-      if (
-        previousLetter &&
-        previousLetter.includes('caps') &&
-        'acdgoq'.split('').includes(currentLetter.split('.')[0])
-      ) {
-        console.log('caps');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 38,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        previousLetter.includes('b') &&
-        (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
-      ) {
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 10,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
-        console.log('b.asc.alt');
-        if (previousSegment) {
+      if (segment) {
+        if (
+          previousLetter &&
+          previousLetter.includes('caps') &&
+          'acdgoq'.split('').includes(currentLetter.split('.')[0])
+        ) {
+          console.log('caps');
           const svgs = segment.svgs.map(svg => {
             return {
               ...svg,
               attr: {
                 ...svg.attr,
-                translateX: svg.attr.translateX - 25,
+                translateX: svg.attr.translateX - 38,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter.includes('b') &&
+          (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
+        ) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
+          console.log('b.asc.alt');
+          if (previousSegment) {
+            const svgs = segment.svgs.map(svg => {
+              return {
+                ...svg,
+                attr: {
+                  ...svg.attr,
+                  translateX: svg.attr.translateX - 25,
+                },
+              };
+            });
+            segment = {svgs};
+          }
+        } else if (
+          previousLetter &&
+          (previousLetter === 'a.rs.alt' ||
+            previousLetter === 'z.rs.alt' ||
+            previousLetter === 'q.rs.alt') &&
+          (currentLetter === 'r.alt' || currentLetter === 's.alt')
+        ) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 30,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'h.alt' ||
+            currentLetter === 'h.right' ||
+            currentLetter === 'k.alt' ||
+            currentLetter === 'k.right')
+        ) {
+          console.log('h.alt || k.right');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 22,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (currentLetter === 'x.alt' || currentLetter === 'x.right') {
+          console.log('x.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter === 'i.alt' || previousLetter === 'i.left') {
+          console.log('i.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 22,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter === 'o.o.alt' &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('o.o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter === 'z.o.alt' &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('z.o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 15,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'z.alt' || currentLetter === 'z.right')
+        ) {
+          console.log('z.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 28,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (previousLetter === 'f.alt' ||
+            previousLetter === 'f.left' ||
+            previousLetter === 'f.f.alt' ||
+            previousLetter === 'f.f.left')
+        ) {
+          console.log('f.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 28,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'f.alt' ||
+            currentLetter === 'f.right' ||
+            currentLetter === 'f.f.alt')
+        ) {
+          console.log('f.right || f.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 45,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter && previousLetter === 'desc.x.alt') {
+          console.log('desc.x.a');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else {
+          console.log('all');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 8,
               },
             };
           });
           segment = {svgs};
         }
-      } else if (
-        previousLetter &&
-        (previousLetter === 'a.rs.alt' ||
-          previousLetter === 'z.rs.alt' ||
-          previousLetter === 'q.rs.alt') &&
-        (currentLetter === 'r.alt' || currentLetter === 's.alt')
-      ) {
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 10,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 28,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        (currentLetter === 'h.alt' ||
-          currentLetter === 'h.right' ||
-          currentLetter === 'k.alt' ||
-          currentLetter === 'k.right')
-      ) {
-        console.log('h.alt || k.right');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 22,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (previousLetter && currentLetter === 'x.alt') {
-        console.log('x.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 12,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (previousLetter === 'i.alt' || previousLetter === 'i.left') {
-        console.log('i.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 22,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        previousLetter === 'o.o.alt' &&
-        (currentLetter === 'o.alt' || currentLetter === 'o.right')
-      ) {
-        console.log('o.o.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 12,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        (currentLetter === 'o.alt' || currentLetter === 'o.right')
-      ) {
-        console.log('o.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 10,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        (currentLetter === 'z.alt' || currentLetter === 'z.right')
-      ) {
-        console.log('z.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 28,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        (previousLetter === 'f.alt' || previousLetter === 'f.left')
-      ) {
-        console.log('f.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 28,
-            },
-          };
-        });
-        segment = {svgs};
-      } else if (
-        previousLetter &&
-        (currentLetter === 'f.alt' || currentLetter === 'f.right')
-      ) {
-        console.log('f.right || f.alt');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 45,
-            },
-          };
-        });
-        segment = {svgs};
+        generatedSegments.push(segment);
       } else {
-        console.log('all');
-        const svgs = segment.svgs.map(svg => {
-          return {
-            ...svg,
-            attr: {
-              ...svg.attr,
-              translateX: svg.attr.translateX - 8,
-            },
-          };
-        });
-        segment = {svgs};
+        console.log('Character or connection not found ', currentLetter);
       }
-
-      generatedSegments.push(segment);
     }
 
     setSegments(generatedSegments);
@@ -246,7 +286,7 @@ const AnimationComponent = () => {
         style={{
           flexDirection: 'row',
           justifyContent: 'center',
-          paddingHorizontal: 40,
+          paddingLeft: 16,
         }}>
         <RenderSVG segments={segments} />
       </View>
@@ -640,7 +680,7 @@ const AnimationComponent = () => {
 // third version with scaling svgs
 
 const STROKE_WIDTH = 8;
-const RenderSVG = React.memo(({segments, scale = 1.7}) => {
+const RenderSVG = React.memo(({segments, scale = 1.25}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -687,7 +727,6 @@ const RenderSVG = React.memo(({segments, scale = 1.7}) => {
         // }, 100); // Optional delay before the next animation starts
       }
     };
-
     requestAnimationFrame(animate);
   };
 
@@ -759,9 +798,10 @@ const RenderSVG = React.memo(({segments, scale = 1.7}) => {
                 viewBox={viewBox}
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                {...otherProps}
                 translateX={effectiveTranslateX}
-                translateY={effectiveTranslateY}>
+                translateY={effectiveTranslateY}
+                // style={{zIndex: index === currentSvgIndex ? 1 : 0}}
+                {...otherProps}>
                 <Path
                   d={svg.path}
                   stroke={'white'}
