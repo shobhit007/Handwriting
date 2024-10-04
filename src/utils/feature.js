@@ -221,47 +221,50 @@ export const generateLetterToSVG = str => {
     let nextChar = strArr[i + 1];
     let prevChar = i > 0 ? strArr[i - 1] : null;
 
+    let letterObj = {
+      letter: char,
+      svgs: [],
+    };
+
     if (prevChar && !nextChar) {
       if (char === 'a' || char === 'd') {
-        svgLetters.push(`${char}.base`);
+        letterObj.svgs.push({type: `${char}.base`});
       } else {
-        svgLetters.push(`${char}.right`);
+        letterObj.svgs.push({type: `${char}.right`});
       }
     } else if (!prevChar && nextChar) {
       if (nextChar === 'e') {
-        if (char === 'g') {
-          svgLetters.push('g.e.left');
-        } else if (char === 'j') {
-          svgLetters.push('j.e.left');
-        } else if (char === 'y') {
-          svgLetters.push('y.e.left');
+        if (['g', 'j', 'y'].includes(char)) {
+          letterObj.svgs.push({type: `${char}.e.left`});
         } else {
-          svgLetters.push(`${char}.left`);
+          letterObj.svgs.push({type: `${char}.left`});
         }
       } else {
-        svgLetters.push(`${char}.left`);
+        letterObj.svgs.push({type: `${char}.left`});
       }
-      svgLetters.push(...createConnections(char, nextChar));
+      createConnections(char, nextChar).forEach(connection => {
+        letterObj.svgs.push({type: connection});
+      });
     } else if (prevChar && nextChar) {
       if (prevChar === 'f' && char === 'f') {
-        svgLetters.push(`f.f.alt`);
+        letterObj.svgs.push({type: 'f.f.alt'});
       } else if (nextChar === 'e') {
-        if (char === 'g') {
-          svgLetters.push('g.e.alt');
-        } else if (char === 'j') {
-          svgLetters.push('j.e.alt');
-        } else if (char === 'y') {
-          svgLetters.push('y.e.alt');
+        if (['g', 'j', 'y'].includes(char)) {
+          letterObj.svgs.push({type: `${char}.e.alt`});
         } else {
-          svgLetters.push(`${char}.alt`);
+          letterObj.svgs.push({type: `${char}.alt`});
         }
       } else {
-        svgLetters.push(`${char}.alt`);
+        letterObj.svgs.push({type: `${char}.alt`});
       }
-      svgLetters.push(...createConnections(char, nextChar));
+      createConnections(char, nextChar).forEach(connection => {
+        letterObj.svgs.push({type: connection});
+      });
     } else if (!prevChar && !nextChar) {
-      svgLetters.push(`${char}.base`);
+      letterObj.svgs.push({type: `${char}.base`});
     }
+
+    svgLetters.push(letterObj);
   }
 
   return svgLetters;

@@ -330,23 +330,16 @@ const Words = () => {
 
 export default Words;
 
-<svg width="46" height="134" viewBox="0 0 46 134" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="" stroke="black" stroke-width="8" stroke-linecap="round"/>
-</svg>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<svg
+  width="17"
+  height="40"
+  viewBox="0 0 17 40"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M4.5 4.5C4.5 9.5 4.5 14 4.5 19.5744C4.5 25.5 4.5 29 6.5 32C7.94412 34.1662 10 35.5 13 35.5"
+    stroke="black"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+</svg>;
