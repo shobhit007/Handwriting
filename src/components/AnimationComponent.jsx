@@ -1,12 +1,305 @@
 import React, {useEffect, useRef, useState, useMemo} from 'react';
-import {View, Animated, Text, Pressable, StyleSheet} from 'react-native';
-import {Path, Svg, G} from 'react-native-svg';
+import {View, Animated, Text, Pressable, Dimensions} from 'react-native';
+import {Path, Svg, G, Line} from 'react-native-svg';
 import {svgPathProperties} from 'svg-path-properties';
-import {generateLetterToSVG} from '../utils/feature';
+import {audioData, generateLetterToSVG} from '../utils/feature';
 import {AlphabetLetters} from '../utils/letters';
+import {Audio} from 'expo-av';
 
+const {width: windowScreen} = Dimensions.get('window');
+
+const generateSVGs = letters => {
+  let generatedLetters = generateLetterToSVG(letters);
+  // generatedLetters = [{letter: 'i', svgs: [{type: 'i.right'}]}];
+  console.log('letters', generatedLetters);
+  generatedLetters.forEach(item => console.log(item.svgs));
+
+  const svgSegments = generatedLetters.map(l => l.svgs).flat();
+  let index = 0;
+
+  let generatedSegments = [];
+  for (let i = 0; i < generatedLetters.length; i++) {
+    const currentLetter = generatedLetters[i];
+    const letter = currentLetter.letter;
+    const letterSvgs = currentLetter.svgs;
+    console.log('letterSvgs', letterSvgs);
+    let segment;
+
+    for (let j = 0; j < letterSvgs.length; j++) {
+      const currentLetter = svgSegments[index].type;
+      const previousLetter = svgSegments[index - 1]?.type;
+      const alphabetLetter = AlphabetLetters[currentLetter];
+      segment = alphabetLetter
+        ? JSON.parse(JSON.stringify(alphabetLetter))
+        : null;
+
+      const previousSegment = previousLetter
+        ? JSON.parse(JSON.stringify(AlphabetLetters[previousLetter]))
+        : null;
+
+      if (segment) {
+        if (
+          previousLetter &&
+          previousLetter.includes('caps') &&
+          'acdgoq'.split('').includes(currentLetter.split('.')[0])
+        ) {
+          console.log('caps');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 38,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter.includes('b') &&
+          (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
+        ) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
+          console.log('b.asc.alt');
+          if (previousSegment) {
+            const svgs = segment.svgs.map(svg => {
+              return {
+                ...svg,
+                attr: {
+                  ...svg.attr,
+                  translateX: svg.attr.translateX - 25,
+                },
+              };
+            });
+            segment = {svgs};
+          }
+        } else if (
+          previousLetter &&
+          (previousLetter === 'a.rs.alt' ||
+            previousLetter === 'z.rs.alt' ||
+            previousLetter === 'q.rs.alt') &&
+          (currentLetter === 'r.alt' || currentLetter === 's.alt')
+        ) {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 30,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'h.alt' ||
+            currentLetter === 'h.right' ||
+            currentLetter === 'k.alt' ||
+            currentLetter === 'k.right')
+        ) {
+          console.log('h.alt || k.right');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 22,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (currentLetter === 'x.alt' || currentLetter === 'x.right') {
+          console.log('x.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter === 'i.alt' || previousLetter === 'i.left') {
+          console.log('i.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 14.8,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter === 'o.o.alt' &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('o.o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          previousLetter === 'z.o.alt' &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('z.o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 15,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'o.alt' || currentLetter === 'o.right')
+        ) {
+          console.log('o.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 10,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'z.alt' || currentLetter === 'z.right')
+        ) {
+          console.log('z.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 28,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (previousLetter === 'f.alt' ||
+            previousLetter === 'f.left' ||
+            previousLetter === 'f.f.alt' ||
+            previousLetter === 'f.f.left')
+        ) {
+          console.log('f.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 28,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (
+          previousLetter &&
+          (currentLetter === 'f.alt' ||
+            currentLetter === 'f.right' ||
+            currentLetter === 'f.f.alt')
+        ) {
+          console.log('f.right || f.alt');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 45,
+              },
+            };
+          });
+          segment = {svgs};
+        } else if (previousLetter && previousLetter === 'desc.x.alt') {
+          console.log('desc.x.a');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 12,
+              },
+            };
+          });
+          segment = {svgs};
+        } else {
+          console.log('all');
+          const svgs = segment.svgs.map(svg => {
+            return {
+              ...svg,
+              attr: {
+                ...svg.attr,
+                translateX: svg.attr.translateX - 8,
+              },
+            };
+          });
+          segment = {svgs};
+        }
+
+        segment.letter = letter;
+        segment.type = svgSegments[index].type;
+
+        generatedSegments.push(segment);
+      } else {
+        console.log('Character or connection not found ', currentLetter);
+      }
+
+      // increase index
+      index++;
+    }
+  }
+
+  return generatedSegments;
+};
+
+const baselineChars = 'aceimnorsuvwx';
 const AnimationComponent = () => {
   const [segments, setSegments] = useState([]);
+  const [segmentAudios, setSegmentAudios] = useState(null);
+  const [connectionAudios, setConnectionAudios] = useState(null);
+  const [isAllBaselineChars, setIsAllBaselineChars] = useState(false);
+
+  const inputLetters = 'a';
 
   // initial code, do not remove
   // useEffect(() => {
@@ -282,289 +575,89 @@ const AnimationComponent = () => {
   // }, []);
 
   useEffect(() => {
-    const letters = 'b';
-    let generatedLetters = generateLetterToSVG(letters);
-    generatedLetters.forEach(item => console.log(item.svgs));
-
-    const svgSegments = generatedLetters.map(l => l.svgs).flat();
-    let index = 0;
-
-    let generatedSegments = [];
-    for (let i = 0; i < generatedLetters.length; i++) {
-      const currentLetter = generatedLetters[i];
-      const letter = currentLetter.letter;
-      const letterSvgs = currentLetter.svgs;
-      let segment;
-
-      for (let j = 0; j < letterSvgs.length; j++) {
-        const currentLetter = svgSegments[index].type;
-        console.log('currentLetter', currentLetter);
-        const previousLetter = svgSegments[index - 1]?.type;
-        console.log('previousLetter', previousLetter);
-        const alphabetLetter = AlphabetLetters[currentLetter];
-        segment = alphabetLetter
-          ? JSON.parse(JSON.stringify(alphabetLetter))
-          : null;
-
-        const previousSegment = previousLetter
-          ? JSON.parse(JSON.stringify(AlphabetLetters[previousLetter]))
-          : null;
-
-        if (segment) {
-          if (
-            previousLetter &&
-            previousLetter.includes('caps') &&
-            'acdgoq'.split('').includes(currentLetter.split('.')[0])
-          ) {
-            console.log('caps');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 38,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            previousLetter.includes('b') &&
-            (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
-          ) {
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 10,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
-            console.log('b.asc.alt');
-            if (previousSegment) {
-              const svgs = segment.svgs.map(svg => {
-                return {
-                  ...svg,
-                  attr: {
-                    ...svg.attr,
-                    translateX: svg.attr.translateX - 25,
-                  },
-                };
-              });
-              segment = {svgs};
-            }
-          } else if (
-            previousLetter &&
-            (previousLetter === 'a.rs.alt' ||
-              previousLetter === 'z.rs.alt' ||
-              previousLetter === 'q.rs.alt') &&
-            (currentLetter === 'r.alt' || currentLetter === 's.alt')
-          ) {
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 10,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 30,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            (currentLetter === 'h.alt' ||
-              currentLetter === 'h.right' ||
-              currentLetter === 'k.alt' ||
-              currentLetter === 'k.right')
-          ) {
-            console.log('h.alt || k.right');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 22,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (currentLetter === 'x.alt' || currentLetter === 'x.right') {
-            console.log('x.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 12,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter === 'i.alt' ||
-            previousLetter === 'i.left'
-          ) {
-            console.log('i.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 22,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            previousLetter === 'o.o.alt' &&
-            (currentLetter === 'o.alt' || currentLetter === 'o.right')
-          ) {
-            console.log('o.o.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 12,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            previousLetter === 'z.o.alt' &&
-            (currentLetter === 'o.alt' || currentLetter === 'o.right')
-          ) {
-            console.log('z.o.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 15,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            (currentLetter === 'o.alt' || currentLetter === 'o.right')
-          ) {
-            console.log('o.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 10,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            (currentLetter === 'z.alt' || currentLetter === 'z.right')
-          ) {
-            console.log('z.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 28,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            (previousLetter === 'f.alt' ||
-              previousLetter === 'f.left' ||
-              previousLetter === 'f.f.alt' ||
-              previousLetter === 'f.f.left')
-          ) {
-            console.log('f.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 28,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (
-            previousLetter &&
-            (currentLetter === 'f.alt' ||
-              currentLetter === 'f.right' ||
-              currentLetter === 'f.f.alt')
-          ) {
-            console.log('f.right || f.alt');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 45,
-                },
-              };
-            });
-            segment = {svgs};
-          } else if (previousLetter && previousLetter === 'desc.x.alt') {
-            console.log('desc.x.a');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 12,
-                },
-              };
-            });
-            segment = {svgs};
-          } else {
-            console.log('all');
-            const svgs = segment.svgs.map(svg => {
-              return {
-                ...svg,
-                attr: {
-                  ...svg.attr,
-                  translateX: svg.attr.translateX - 8,
-                },
-              };
-            });
-            segment = {svgs};
-          }
-          generatedSegments.push(segment);
+    const alphabetSegmentsAudios = async () => {
+      try {
+        const url =
+          'http://192.168.1.12:8080/quilingo/courses/getAlphabetsFormationAudios';
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result.success) {
+          setSegmentAudios(result.audios);
+          setConnectionAudios(result.connectionAudios);
         } else {
-          console.log('Character or connection not found ', currentLetter);
+          setSegmentAudios(null);
+        }
+      } catch (error) {
+        console.log('error', error);
+        setSegmentAudios(null);
+      }
+    };
+
+    alphabetSegmentsAudios();
+  }, []);
+
+  useEffect(() => {
+    // Check if all input letters are in baselineChars
+    const allBaseline = inputLetters
+      .split('')
+      .every(letter => baselineChars.includes(letter));
+    setIsAllBaselineChars(allBaseline);
+  }, [inputLetters]);
+
+  useEffect(() => {
+    // replace duration of segment animation with audio duration
+    const setGeneratedSVGs = async () => {
+      // const letters = 'az';
+      let generatedSegments = generateSVGs(inputLetters);
+      const svgSegments = [];
+      for (let segment of generatedSegments) {
+        const svgs = segment.svgs;
+        const letter = segment.letter;
+        const segments = [];
+        if (segmentAudios) {
+          for (let i = 0; i < svgs.length; i++) {
+            const svg = svgs[i];
+            const audioUri = segmentAudios[letter][i];
+            const sound = new Audio.Sound();
+            try {
+              await sound.loadAsync({uri: audioUri.audio});
+              const status = await sound.getStatusAsync();
+              const duration = status.durationMillis / 1000; // Convert to seconds
+              console.log('duration', duration);
+
+              segments.push({
+                ...svg,
+                duration,
+                audio: audioUri.audio,
+              });
+            } catch (error) {
+              console.error('Error loading audio:', error);
+              segments.push({
+                ...svg,
+                audio: audioUri.audio,
+              });
+            } finally {
+              await sound.unloadAsync(); // Unload the audio to free up resources
+            }
+          }
+        } else {
+          segments.push(...svgs);
         }
 
-        // increase index
-        index++;
+        svgSegments.push({letter, type: segment.type, svgs: segments});
       }
-    }
 
-    console.log('generatedSegments', generatedSegments);
+      // Update generatedSegments with the modified svgSegments
+      generatedSegments = svgSegments;
+      console.log('svgSegments', svgSegments);
 
-    setSegments(generatedSegments);
-  }, []);
+      setSegments(generatedSegments);
+    };
+
+    setGeneratedSVGs();
+  }, [segmentAudios, inputLetters]);
+
+  console.log('isAllBaselineChars', isAllBaselineChars);
 
   return (
     <View
@@ -575,12 +668,36 @@ const AnimationComponent = () => {
       }}>
       <View
         style={{
+          width: '100%',
           flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          paddingLeft: 16,
+          borderTopWidth: 1,
+          borderBottomWidth: 1,
+          borderColor: 'white',
+          position: 'relative',
         }}>
         <RenderSVG segments={segments} />
+        {/* Middle line */}
+        <View
+          style={{
+            position: 'absolute',
+            width: '100%',
+            top: isAllBaselineChars ? '-64%' : '47%',
+            borderTopWidth: 1,
+            borderColor: 'white',
+          }}></View>
+
+        {/* Bottom line */}
+        <View
+          style={{
+            position: 'absolute',
+            width: '100%',
+            bottom: isAllBaselineChars ? '-64%' : '-45%',
+            borderTopWidth: 1,
+            borderColor: 'white',
+            zIndex: 0,
+          }}></View>
       </View>
     </View>
   );
@@ -834,49 +951,49 @@ const AnimationComponent = () => {
 //   const [currentSvgIndex, setCurrentSvgIndex] = useState(0);
 //   const [completedAnimations, setCompletedAnimations] = useState([]);
 
-//   const playNextAnimation = (segmentIndex, svgIndex) => {
-//     if (segmentIndex >= segments.length) {
-//       console.log('All animations finished');
-//       return; // All animations have been played
-//     }
+// const playNextAnimation = (segmentIndex, svgIndex) => {
+//   if (segmentIndex >= segments.length) {
+//     console.log('All animations finished');
+//     return; // All animations have been played
+//   }
 
-//     const segment = segments[segmentIndex];
-//     const svg = segment.svgs[svgIndex];
-//     const duration = svg.duration || 3; // Define the duration for each SVG animation
+//   const segment = segments[segmentIndex];
+//   const svg = segment.svgs[svgIndex];
+//   const duration = svg.duration || 3; // Define the duration for each SVG animation
 
-//     const startTime = Date.now();
+//   const startTime = Date.now();
 
-//     const animate = () => {
-//       const elapsedTime = (Date.now() - startTime) / 1000;
-//       const currentProgress = elapsedTime / duration;
-//       setProgress(currentProgress);
+//   const animate = () => {
+//     const elapsedTime = (Date.now() - startTime) / 1000;
+//     const currentProgress = elapsedTime / duration;
+//     setProgress(currentProgress);
 
-//       if (elapsedTime < duration) {
-//         animationFrameRef.current = requestAnimationFrame(animate);
+//     if (elapsedTime < duration) {
+//       animationFrameRef.current = requestAnimationFrame(animate);
+//     } else {
+//       setProgress(1);
+//       setCompletedAnimations(prev => [
+//         ...prev,
+//         `${segmentIndex}-${svgIndex}`,
+//       ]);
+
+//       // setTimeout(() => {
+//       setProgress(0);
+
+//       if (svgIndex < segment.svgs.length - 1) {
+//         setCurrentSvgIndex(svgIndex + 1);
+//         playNextAnimation(segmentIndex, svgIndex + 1);
 //       } else {
-//         setProgress(1);
-//         setCompletedAnimations(prev => [
-//           ...prev,
-//           `${segmentIndex}-${svgIndex}`,
-//         ]);
-
-//         // setTimeout(() => {
-//         setProgress(0);
-
-//         if (svgIndex < segment.svgs.length - 1) {
-//           setCurrentSvgIndex(svgIndex + 1);
-//           playNextAnimation(segmentIndex, svgIndex + 1);
-//         } else {
-//           setCurrentSegmentIndex(segmentIndex + 1);
-//           setCurrentSvgIndex(0);
-//           playNextAnimation(segmentIndex + 1, 0);
-//         }
-//         // }, 100); // Optional delay before the next animation starts
+//         setCurrentSegmentIndex(segmentIndex + 1);
+//         setCurrentSvgIndex(0);
+//         playNextAnimation(segmentIndex + 1, 0);
 //       }
-//     };
-
-//     requestAnimationFrame(animate);
+//       // }, 100); // Optional delay before the next animation starts
+//     }
 //   };
+
+//   requestAnimationFrame(animate);
+// };
 
 //   useEffect(() => {
 //     segments.length > 0 && playNextAnimation(0, 0);
@@ -968,17 +1085,125 @@ const AnimationComponent = () => {
 //     </View>
 //   );
 // });
-
 // third version with scaling svgs
 
 const STROKE_WIDTH = 8;
-const RenderSVG = React.memo(({segments, scale = 1.25}) => {
+const RenderSVG = React.memo(({segments, scale = 1.7}) => {
   const animationFrameRef = useRef(null);
   const [progress, setProgress] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [currentSvgIndex, setCurrentSvgIndex] = useState(0);
   const [completedAnimations, setCompletedAnimations] = useState([]);
 
+  // only with audio
+  // const playNextAnimation = (segmentIndex, svgIndex) => {
+  //   if (segmentIndex >= segments.length) {
+  //     console.log('All animations finished');
+  //     return; // All animations have been played
+  //   }
+
+  //   const segment = segments[segmentIndex];
+  //   const svg = segment.svgs[svgIndex];
+  //   const audio = new Audio.Sound();
+  //   const duration = svg.duration; // Define the duration for each SVG animation
+
+  //   const startAnimation = () => {
+  //     const startTime = Date.now();
+  //     const animate = () => {
+  //       const elapsedTime = (Date.now() - startTime) / 1000;
+  //       const currentProgress = elapsedTime / duration;
+  //       setProgress(currentProgress);
+
+  //       if (elapsedTime < duration) {
+  //         animationFrameRef.current = requestAnimationFrame(animate);
+  //       } else {
+  //         setProgress(1);
+  //         setCompletedAnimations(prev => [
+  //           ...prev,
+  //           `${segmentIndex}-${svgIndex}`,
+  //         ]);
+  //         // Wait for audio to finish before moving to the next animation
+  //         audio.stopAsync().then(() => {
+  //           setProgress(0);
+  //           if (svgIndex < segment.svgs.length - 1) {
+  //             setCurrentSvgIndex(svgIndex + 1);
+  //             playNextAnimation(segmentIndex, svgIndex + 1);
+  //           } else {
+  //             setCurrentSegmentIndex(segmentIndex + 1);
+  //             setCurrentSvgIndex(0);
+  //             playNextAnimation(segmentIndex + 1, 0);
+  //           }
+  //         });
+  //       }
+  //     };
+  //     requestAnimationFrame(animate);
+  //   };
+
+  //   audio
+  //     .loadAsync({uri: svg.audio})
+  //     .then(() => {
+  //       audio.playAsync().then(() => {
+  //         startAnimation();
+  //       });
+  //     })
+  //     .catch(error => {
+  //       console.error('Error loading audio:', error);
+  //       startAnimation(); // Start animation even if audio fails to load
+  //     });
+
+  //   return () => {
+  //     if (animationFrameRef.current) {
+  //       cancelAnimationFrame(animationFrameRef.current);
+  //     }
+  //     audio.unloadAsync(); // Clean up audio resources
+  //   };
+  // };
+
+  // const playNextAnimation = (segmentIndex, svgIndex) => {
+  //   if (segmentIndex >= segments.length) {
+  //     console.log('All animations finished');
+  //     return; // All animations have been played
+  //   }
+
+  //   const segment = segments[segmentIndex];
+  //   const svg = segment.svgs[svgIndex];
+  //   const duration = svg.duration || 3; // Define the duration for each SVG animation
+
+  //   const startTime = Date.now();
+
+  //   const animate = () => {
+  //     const elapsedTime = (Date.now() - startTime) / 1000;
+  //     const currentProgress = elapsedTime / duration;
+  //     setProgress(currentProgress);
+
+  //     if (elapsedTime < duration) {
+  //       animationFrameRef.current = requestAnimationFrame(animate);
+  //     } else {
+  //       setProgress(1);
+  //       setCompletedAnimations(prev => [
+  //         ...prev,
+  //         `${segmentIndex}-${svgIndex}`,
+  //       ]);
+
+  //       setTimeout(() => {
+  //         setProgress(0);
+
+  //         if (svgIndex < segment.svgs.length - 1) {
+  //           setCurrentSvgIndex(svgIndex + 1);
+  //           playNextAnimation(segmentIndex, svgIndex + 1);
+  //         } else {
+  //           setCurrentSegmentIndex(segmentIndex + 1);
+  //           setCurrentSvgIndex(0);
+  //           playNextAnimation(segmentIndex + 1, 0);
+  //         }
+  //       }, 500); // Optional delay before the next animation starts
+  //     }
+  //   };
+
+  //   requestAnimationFrame(animate);
+  // };
+
+  // audio plus pause
   const playNextAnimation = (segmentIndex, svgIndex) => {
     if (segmentIndex >= segments.length) {
       console.log('All animations finished');
@@ -987,43 +1212,65 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
 
     const segment = segments[segmentIndex];
     const svg = segment.svgs[svgIndex];
-    const duration = svg.duration || 3; // Define the duration for each SVG animation
+    const audio = new Audio.Sound();
+    const duration = svg.duration; // Define the duration for each SVG animation
 
-    const startTime = Date.now();
+    const startAnimation = () => {
+      const startTime = Date.now();
+      const animate = () => {
+        const elapsedTime = (Date.now() - startTime) / 1000;
+        const currentProgress = elapsedTime / duration;
+        setProgress(currentProgress);
 
-    const animate = () => {
-      const elapsedTime = (Date.now() - startTime) / 1000;
-      const currentProgress = elapsedTime / duration;
-      setProgress(currentProgress);
-
-      if (elapsedTime < duration) {
-        animationFrameRef.current = requestAnimationFrame(animate);
-      } else {
-        setProgress(1);
-        setCompletedAnimations(prev => [
-          ...prev,
-          `${segmentIndex}-${svgIndex}`,
-        ]);
-
-        // setTimeout(() => {
-        setProgress(0);
-
-        if (svgIndex < segment.svgs.length - 1) {
-          setCurrentSvgIndex(svgIndex + 1);
-          playNextAnimation(segmentIndex, svgIndex + 1);
+        if (elapsedTime < duration) {
+          animationFrameRef.current = requestAnimationFrame(animate);
         } else {
-          setCurrentSegmentIndex(segmentIndex + 1);
-          setCurrentSvgIndex(0);
-          playNextAnimation(segmentIndex + 1, 0);
+          setProgress(1);
+          setCompletedAnimations(prev => [
+            ...prev,
+            `${segmentIndex}-${svgIndex}`,
+          ]);
+          // Wait for audio to finish before moving to the next animation
+          audio.stopAsync().then(() => {
+            setProgress(0);
+            setTimeout(() => {
+              if (svgIndex < segment.svgs.length - 1) {
+                setCurrentSvgIndex(svgIndex + 1);
+                playNextAnimation(segmentIndex, svgIndex + 1);
+              } else {
+                setCurrentSegmentIndex(segmentIndex + 1);
+                setCurrentSvgIndex(0);
+                playNextAnimation(segmentIndex + 1, 0);
+              }
+            }, 1000);
+          });
         }
-        // }, 100); // Optional delay before the next animation starts
-      }
+      };
+      requestAnimationFrame(animate);
     };
-    requestAnimationFrame(animate);
+
+    audio
+      .loadAsync({uri: svg.audio})
+      .then(() => {
+        audio.playAsync().then(() => {
+          startAnimation();
+        });
+      })
+      .catch(error => {
+        console.error('Error loading audio:', error);
+        startAnimation(); // Start animation even if audio fails to load
+      });
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      audio.unloadAsync(); // Clean up audio resources
+    };
   };
 
   useEffect(() => {
-    // segments.length > 0 && playNextAnimation(0, 0);
+    segments.length > 0 && playNextAnimation(0, 0);
 
     return () => {
       if (animationFrameRef.current) {
@@ -1053,6 +1300,7 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
           style={{
             flexDirection: 'row',
             alignItems: 'flex-end',
+            position: 'relative',
           }}>
           {segment.svgs.map((svg, index) => {
             const {
@@ -1080,6 +1328,24 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
 
             let effectiveTranslateX = (translateX || 0) * scale + translationX;
 
+            if (svg.dot) {
+              const indexOfI = segments.findIndex(s => s.letter === 'i');
+
+              // Check if 'i' is the first letter
+              let x = segments
+                .slice(indexOfI, segments.length - 1)
+                .reduce((acc, seg) => {
+                  let xPos = 0;
+                  for (let i = 0; i < seg.svgs.length; i++) {
+                    xPos += seg.svgs[i].attr.translateX;
+                  }
+                  return (acc += xPos);
+                }, 0);
+
+              effectiveTranslateX += x; // Combine the translations instead of overriding
+              console.log('effX', effectiveTranslateX, segment.type);
+            }
+
             let effectiveTranslateY = translateY * scale;
 
             return (
@@ -1092,7 +1358,7 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
                 xmlns="http://www.w3.org/2000/svg"
                 translateX={effectiveTranslateX}
                 translateY={effectiveTranslateY}
-                // style={{zIndex: index === currentSvgIndex ? 1 : 0}}
+                style={{zIndex: index === currentSvgIndex ? 10 : 1}}
                 {...otherProps}>
                 <Path
                   d={svg.path}
@@ -1127,8 +1393,11 @@ const RenderSVG = React.memo(({segments, scale = 1.25}) => {
   return (
     <View
       style={{
-        flex: 1,
         flexDirection: 'row',
+        justifyContent: 'center',
+        position: 'relative',
+        zIndex: 1,
+        transform: [{translateX: windowScreen * 0.2}],
       }}>
       {renderedSegments}
     </View>

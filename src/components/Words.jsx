@@ -331,15 +331,360 @@ const Words = () => {
 export default Words;
 
 <svg
-  width="17"
-  height="40"
-  viewBox="0 0 17 40"
+  width="65"
+  height="52"
+  viewBox="0 0 65 52"
   fill="none"
   xmlns="http://www.w3.org/2000/svg">
-  <path
-    d="M4.5 4.5C4.5 9.5 4.5 14 4.5 19.5744C4.5 25.5 4.5 29 6.5 32C7.94412 34.1662 10 35.5 13 35.5"
-    stroke="black"
-    stroke-width="8"
-    stroke-linecap="round"
-  />
+  <path d="" stroke="black" stroke-width="8" stroke-linecap="round" />
 </svg>;
+
+// generateSVGs copy
+// const generateSVGs = letters => {
+//   let generatedLetters = generateLetterToSVG(letters);
+//   console.log('generatedLetters', generatedLetters);
+//   generatedLetters.forEach(item => console.log(item.svgs));
+
+//   const svgSegments = generatedLetters.map(l => l.svgs).flat();
+//   let index = 0;
+
+//   let generatedSegments = [];
+//   for (let i = 0; i < generatedLetters.length; i++) {
+//     const currentLetter = generatedLetters[i];
+//     const letter = currentLetter.letter;
+//     const letterSvgs = currentLetter.svgs;
+//     console.log('letterSvgs', letterSvgs);
+//     let segment;
+
+//     for (let j = 0; j < letterSvgs.length; j++) {
+//       const currentLetter = svgSegments[index].type;
+//       const previousLetter = svgSegments[index - 1]?.type;
+//       const alphabetLetter = AlphabetLetters[currentLetter];
+//       segment = alphabetLetter
+//         ? JSON.parse(JSON.stringify(alphabetLetter))
+//         : null;
+
+//       const previousSegment = previousLetter
+//         ? JSON.parse(JSON.stringify(AlphabetLetters[previousLetter]))
+//         : null;
+
+//       if (segment) {
+//         if (
+//           previousLetter &&
+//           previousLetter.includes('caps') &&
+//           'acdgoq'.split('').includes(currentLetter.split('.')[0])
+//         ) {
+//           console.log('caps');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 38,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           previousLetter.includes('b') &&
+//           (currentLetter.includes('r.alt') || currentLetter.includes('s.alt'))
+//         ) {
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 10,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (previousLetter && currentLetter.includes('b.asc.alt')) {
+//           console.log('b.asc.alt');
+//           if (previousSegment) {
+//             const svgs = segment.svgs.map(svg => {
+//               return {
+//                 ...svg,
+//                 attr: {
+//                   ...svg.attr,
+//                   translateX: svg.attr.translateX - 25,
+//                 },
+//               };
+//             });
+//             segment = {svgs};
+//           }
+//         } else if (
+//           previousLetter &&
+//           (previousLetter === 'a.rs.alt' ||
+//             previousLetter === 'z.rs.alt' ||
+//             previousLetter === 'q.rs.alt') &&
+//           (currentLetter === 'r.alt' || currentLetter === 's.alt')
+//         ) {
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 10,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (currentLetter === 'j.alt' || currentLetter === 'j.right') {
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 30,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           (currentLetter === 'h.alt' ||
+//             currentLetter === 'h.right' ||
+//             currentLetter === 'k.alt' ||
+//             currentLetter === 'k.right')
+//         ) {
+//           console.log('h.alt || k.right');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 22,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (currentLetter === 'x.alt' || currentLetter === 'x.right') {
+//           console.log('x.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 12,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (previousLetter === 'i.alt' || previousLetter === 'i.left') {
+//           console.log('i.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 16,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           previousLetter === 'o.o.alt' &&
+//           (currentLetter === 'o.alt' || currentLetter === 'o.right')
+//         ) {
+//           console.log('o.o.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 12,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           previousLetter === 'z.o.alt' &&
+//           (currentLetter === 'o.alt' || currentLetter === 'o.right')
+//         ) {
+//           console.log('z.o.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 15,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           (currentLetter === 'o.alt' || currentLetter === 'o.right')
+//         ) {
+//           console.log('o.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 10,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           (currentLetter === 'z.alt' || currentLetter === 'z.right')
+//         ) {
+//           console.log('z.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 28,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           (previousLetter === 'f.alt' ||
+//             previousLetter === 'f.left' ||
+//             previousLetter === 'f.f.alt' ||
+//             previousLetter === 'f.f.left')
+//         ) {
+//           console.log('f.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 28,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (
+//           previousLetter &&
+//           (currentLetter === 'f.alt' ||
+//             currentLetter === 'f.right' ||
+//             currentLetter === 'f.f.alt')
+//         ) {
+//           console.log('f.right || f.alt');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 45,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else if (previousLetter && previousLetter === 'desc.x.alt') {
+//           console.log('desc.x.a');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 12,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         } else {
+//           console.log('all');
+//           const svgs = segment.svgs.map(svg => {
+//             return {
+//               ...svg,
+//               attr: {
+//                 ...svg.attr,
+//                 translateX: svg.attr.translateX - 8,
+//               },
+//             };
+//           });
+//           segment = {svgs};
+//         }
+
+//         segment.letter = letter;
+//         segment.type = svgSegments[index].type;
+
+//         generatedSegments.push(segment);
+//       } else {
+//         console.log('Character or connection not found ', currentLetter);
+//       }
+
+//       // increase index
+//       index++;
+//     }
+//   }
+
+//   return generatedSegments;
+// };
+
+// const playNextAnimation = (segmentIndex, svgIndex) => {
+//   if (segmentIndex >= segments.length) {
+//     console.log('All animations finished');
+//     return; // All animations have been played
+//   }
+
+//   const segment = segments[segmentIndex];
+//   const svg = segment.svgs[svgIndex];
+//   const audio = new Audio.Sound();
+//   const duration = svg.duration; // Define the duration for each SVG animation
+
+//   const startAnimation = () => {
+//     const startTime = Date.now();
+//     const animate = () => {
+//       const elapsedTime = (Date.now() - startTime) / 1000;
+//       const currentProgress = elapsedTime / duration;
+//       setProgress(currentProgress);
+
+//       if (elapsedTime < duration) {
+//         animationFrameRef.current = requestAnimationFrame(animate);
+//       } else {
+//         setProgress(1);
+//         setCompletedAnimations(prev => [
+//           ...prev,
+//           `${segmentIndex}-${svgIndex}`,
+//         ]);
+//         // Wait for audio to finish before moving to the next animation
+//         audio.stopAsync().then(() => {
+//           setProgress(0);
+//           // Add a pause before moving to the next segment
+//           setTimeout(() => {
+//             if (svgIndex < segment.svgs.length - 1) {
+//               setCurrentSvgIndex(svgIndex + 1);
+//               playNextAnimation(segmentIndex, svgIndex + 1);
+//             } else {
+//               setCurrentSegmentIndex(segmentIndex + 1);
+//               setCurrentSvgIndex(0);
+//               playNextAnimation(segmentIndex + 1, 0);
+//             }
+//           }, 500); // Pause for 1 second (1000 milliseconds)
+//         });
+//       }
+//     };
+//     requestAnimationFrame(animate);
+//   };
+
+//   audio
+//     .loadAsync({uri: svg.audio})
+//     .then(() => {
+//       audio.playAsync().then(() => {
+//         startAnimation();
+//       });
+//     })
+//     .catch(error => {
+//       console.error('Error loading audio:', error);
+//       startAnimation(); // Start animation even if audio fails to load
+//     });
+
+//   return () => {
+//     if (animationFrameRef.current) {
+//       cancelAnimationFrame(animationFrameRef.current);
+//     }
+//     audio.unloadAsync(); // Clean up audio resources
+//   };
+// };
