@@ -6,7 +6,6 @@ import {audioData, generateLetterToSVG} from '../utils/feature';
 import {AlphabetLetters} from '../utils/letters';
 import {Audio} from 'expo-av';
 import Pencil from './Pencil';
-import {formationAudios} from '../utils/formationAudios';
 
 const {width: windowScreen} = Dimensions.get('window');
 
@@ -607,38 +606,43 @@ const AnimationComponent = () => {
   useEffect(() => {
     // replace duration of segment animation with audio duration
     const setGeneratedSVGs = async () => {
+      // const letters = 'az';
       let generatedSegments = generateSVGs(inputLetters);
       const svgSegments = [];
       for (let segment of generatedSegments) {
         const svgs = segment.svgs;
         const letter = segment.letter;
         const segments = [];
-        for (let i = 0; i < svgs.length; i++) {
-          const svg = svgs[i];
-          const audioUri = formationAudios[letter][i];
-          if (audioUri?.audio) {
-            const sound = new Audio.Sound();
-            try {
-              await sound.loadAsync({uri: audioUri.audio});
-              const status = await sound.getStatusAsync();
-              const duration = status.durationMillis / 1000; // Convert to seconds
-              console.log('duration', duration);
+        if (segmentAudios) {
+          for (let i = 0; i < svgs.length; i++) {
+            const svg = svgs[i];
+            const audioUri = segmentAudios[letter][i];
+            if (audioUri?.audio) {
+              const sound = new Audio.Sound();
+              try {
+                await sound.loadAsync({uri: audioUri.audio});
+                const status = await sound.getStatusAsync();
+                const duration = status.durationMillis / 1000; // Convert to seconds
+                console.log('duration', duration);
 
-              segments.push({
-                ...svg,
-                duration,
-                audio: audioUri.audio,
-              });
-            } catch (error) {
-              console.error('Error loading audio:', error);
-              segments.push({
-                ...svg,
-                audio: audioUri.audio,
-              });
-            } finally {
-              await sound.unloadAsync(); // Unload the audio to free up resources
+                segments.push({
+                  ...svg,
+                  duration,
+                  audio: audioUri.audio,
+                });
+              } catch (error) {
+                console.error('Error loading audio:', error);
+                segments.push({
+                  ...svg,
+                  audio: audioUri.audio,
+                });
+              } finally {
+                await sound.unloadAsync(); // Unload the audio to free up resources
+              }
             }
           }
+        } else {
+          segments.push(...svgs);
         }
 
         svgSegments.push({letter, type: segment.type, svgs: segments});
@@ -651,7 +655,15 @@ const AnimationComponent = () => {
     };
 
     setGeneratedSVGs();
-  }, [formationAudios, inputLetters]);
+  }, [segmentAudios, inputLetters]);
+
+  if (!segmentAudios || !inputLetters) {
+    return (
+      <View>
+        <Text>No audio or no input letters</Text>
+      </View>
+    );
+  }
 
   return (
     <View
