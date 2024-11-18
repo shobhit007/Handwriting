@@ -215,56 +215,68 @@ const createConnections = (char, nextChar) => {
 export const generateLetterToSVG = str => {
   const strArr = str.split('');
   const svgLetters = [];
-
-  for (let i = 0; i < strArr.length; i++) {
-    let char = strArr[i];
-    let nextChar = strArr[i + 1];
-    let prevChar = i > 0 ? strArr[i - 1] : null;
-
-    let letterObj = {
-      letter: char,
-      svgs: [],
-    };
-
-    if (prevChar && !nextChar) {
-      if (char === 'a' || char === 'd') {
-        letterObj.svgs.push({type: `${char}.right`});
-      } else {
-        letterObj.svgs.push({type: `${char}.right`});
-      }
-    } else if (!prevChar && nextChar) {
-      if (nextChar === 'e') {
-        if (['g', 'j', 'y'].includes(char)) {
-          letterObj.svgs.push({type: `${char}.e.left`});
+  const specialSVGTypes = [
+    'StandLine', 'Sleeping', 'RightSlant', 'LeftSlant', 'CCurve', 'ReverseCurve', 
+    'UpwardCurve', 'DownWardCurve', 'MountainSlant', 'DownWardLoop', 
+    'UpAndDownLoopJoining', 'Sconnection', 'CurlySlant', 'UpwardLoop', 
+    'DownWardLoop', 'CurvedConnection', 'MountainConnection', 
+    'UpwardCurveConnection', 'DownwardCurveConnection', 'UpwardLoopJoining'
+  ];
+  if (specialSVGTypes.includes(str)) {
+    svgLetters.push({letter: str, svgs: [{type: str}]})
+  }else {
+    for (let i = 0; i < strArr.length; i++) {
+      let char = strArr[i];
+      let nextChar = strArr[i + 1];
+      let prevChar = i > 0 ? strArr[i - 1] : null;
+  
+      let letterObj = {
+        letter: char,
+        svgs: [],
+      };
+      // if(specialSVGTypes.includes(char)){
+      //   letterObj.svgs.push({type: `${char}.right`})
+      // }else 
+      if (prevChar && !nextChar) {
+        if (char === 'a' || char === 'd') {
+          letterObj.svgs.push({type: `${char}.right`});
+        } else {
+          letterObj.svgs.push({type: `${char}.right`});
+        }
+      } else if (!prevChar && nextChar) {
+        if (nextChar === 'e') {
+          if (['g', 'j', 'y'].includes(char)) {
+            letterObj.svgs.push({type: `${char}.e.left`});
+          } else {
+            letterObj.svgs.push({type: `${char}.left`});
+          }
         } else {
           letterObj.svgs.push({type: `${char}.left`});
         }
-      } else {
-        letterObj.svgs.push({type: `${char}.left`});
-      }
-      createConnections(char, nextChar).forEach(connection => {
-        letterObj.svgs.push({type: connection});
-      });
-    } else if (prevChar && nextChar) {
-      if (prevChar === 'f' && char === 'f') {
-        letterObj.svgs.push({type: 'f.f.alt'});
-      } else if (nextChar === 'e') {
-        if (['g', 'j', 'y'].includes(char)) {
-          letterObj.svgs.push({type: `${char}.e.alt`});
+        createConnections(char, nextChar).forEach(connection => {
+          letterObj.svgs.push({type: connection});
+        });
+      } else if (prevChar && nextChar) {
+        if (prevChar === 'f' && char === 'f') {
+          letterObj.svgs.push({type: 'f.f.alt'});
+        } else if (nextChar === 'e') {
+          if (['g', 'j', 'y'].includes(char)) {
+            letterObj.svgs.push({type: `${char}.e.alt`});
+          } else {
+            letterObj.svgs.push({type: `${char}.alt`});
+          }
         } else {
           letterObj.svgs.push({type: `${char}.alt`});
         }
-      } else {
-        letterObj.svgs.push({type: `${char}.alt`});
+        createConnections(char, nextChar).forEach(connection => {
+          letterObj.svgs.push({type: connection});
+        });
+      } else if (!prevChar && !nextChar) {
+        letterObj.svgs.push({type: `${char}.base`});
       }
-      createConnections(char, nextChar).forEach(connection => {
-        letterObj.svgs.push({type: connection});
-      });
-    } else if (!prevChar && !nextChar) {
-      letterObj.svgs.push({type: `${char}.base`});
-    }
-
-    svgLetters.push(letterObj);
+  
+      svgLetters.push(letterObj);
+    } 
   }
 
   return svgLetters;
