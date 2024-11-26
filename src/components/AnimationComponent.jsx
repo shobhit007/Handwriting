@@ -1,5 +1,12 @@
 import React, {useEffect, useRef, useState, useMemo} from 'react';
-import {View, Animated, Text, Dimensions, Image} from 'react-native';
+import {
+  View,
+  Animated,
+  Text,
+  PanResponder,
+  Dimensions,
+  Image,
+} from 'react-native';
 import {Path, Svg} from 'react-native-svg';
 import {svgPathProperties} from 'svg-path-properties';
 import {audioData, generateLetterToSVG} from '../utils/feature';
@@ -150,7 +157,7 @@ const generateSVGs = letters => {
               ...svg,
               attr: {
                 ...svg.attr,
-                translateX: svg.attr.translateX - 14.8,
+                translateX: svg.attr.translateX - 22,
               },
             };
           });
@@ -221,7 +228,7 @@ const generateSVGs = letters => {
           previousLetter &&
           (previousLetter === 'f.alt' ||
             previousLetter === 'f.left' ||
-            previousLetter === 'f.f.alt' ||
+            // previousLetter === 'f.f.alt' ||
             previousLetter === 'f.f.left')
         ) {
           console.log('f.alt');
@@ -247,7 +254,7 @@ const generateSVGs = letters => {
               ...svg,
               attr: {
                 ...svg.attr,
-                translateX: svg.attr.translateX - 45,
+                translateX: svg.attr.translateX - 40.5,
               },
             };
           });
@@ -300,7 +307,7 @@ const AnimationComponent = () => {
   const [segmentAudios, setSegmentAudios] = useState(null);
   const [isAllBaselineChars, setIsAllBaselineChars] = useState(false);
 
-  const inputLetters = 'a';
+  const inputLetters = 'qj';
 
   // initial code, do not remove
   // useEffect(() => {
@@ -575,26 +582,26 @@ const AnimationComponent = () => {
   //   setSegments(generatedSegments);
   // }, []);
 
-  useEffect(() => {
-    const alphabetSegmentsAudios = async () => {
-      try {
-        const url =
-          'http://192.168.1.12:8080/quilingo/courses/getAlphabetsFormationAudios';
-        const response = await fetch(url);
-        const result = await response.json();
-        if (result.success) {
-          setSegmentAudios(result.audios);
-        } else {
-          setSegmentAudios(null);
-        }
-      } catch (error) {
-        console.log('error', error);
-        setSegmentAudios(null);
-      }
-    };
+  // useEffect(() => {
+  //   const alphabetSegmentsAudios = async () => {
+  //     try {
+  //       const url =
+  //         'http://192.168.1.12:8080/quilingo/courses/getAlphabetsFormationAudios';
+  //       const response = await fetch(url);
+  //       const result = await response.json();
+  //       if (result.success) {
+  //         setSegmentAudios(result.audios);
+  //       } else {
+  //         setSegmentAudios(null);
+  //       }
+  //     } catch (error) {
+  //       console.log('error', error);
+  //       setSegmentAudios(null);
+  //     }
+  //   };
 
-    alphabetSegmentsAudios();
-  }, []);
+  //   alphabetSegmentsAudios();
+  // }, []);
 
   useEffect(() => {
     // Check if all input letters are in baselineChars
@@ -609,43 +616,43 @@ const AnimationComponent = () => {
     const setGeneratedSVGs = async () => {
       let generatedSegments = generateSVGs(inputLetters);
       const svgSegments = [];
-      for (let segment of generatedSegments) {
-        const svgs = segment.svgs;
-        const letter = segment.letter;
-        const segments = [];
-        for (let i = 0; i < svgs.length; i++) {
-          const svg = svgs[i];
-          const audioUri = formationAudios[letter][i];
-          if (audioUri?.audio) {
-            const sound = new Audio.Sound();
-            try {
-              await sound.loadAsync({uri: audioUri.audio});
-              const status = await sound.getStatusAsync();
-              const duration = status.durationMillis / 1000; // Convert to seconds
-              console.log('duration', duration);
+      // for (let segment of generatedSegments) {
+      //   const svgs = segment.svgs;
+      //   const letter = segment.letter;
+      //   const segments = [];
+      //   for (let i = 0; i < svgs.length; i++) {
+      //     const svg = svgs[i];
+      //     const audioUri = formationAudios[letter][i];
+      //     if (audioUri?.audio) {
+      //       const sound = new Audio.Sound();
+      //       try {
+      //         await sound.loadAsync({uri: audioUri.audio});
+      //         const status = await sound.getStatusAsync();
+      //         const duration = status.durationMillis / 1000; // Convert to seconds
+      //         console.log('duration', duration);
 
-              segments.push({
-                ...svg,
-                duration,
-                audio: audioUri.audio,
-              });
-            } catch (error) {
-              console.error('Error loading audio:', error);
-              segments.push({
-                ...svg,
-                audio: audioUri.audio,
-              });
-            } finally {
-              await sound.unloadAsync(); // Unload the audio to free up resources
-            }
-          }
-        }
+      //         segments.push({
+      //           ...svg,
+      //           duration,
+      //           audio: audioUri.audio,
+      //         });
+      //       } catch (error) {
+      //         console.error('Error loading audio:', error);
+      //         segments.push({
+      //           ...svg,
+      //           audio: audioUri.audio,
+      //         });
+      //       } finally {
+      //         await sound.unloadAsync(); // Unload the audio to free up resources
+      //       }
+      //     }
+      //   }
 
-        svgSegments.push({letter, type: segment.type, svgs: segments});
-      }
+      //   svgSegments.push({letter, type: segment.type, svgs: segments});
+      // }
 
       // Update generatedSegments with the modified svgSegments
-      generatedSegments = svgSegments;
+      // generatedSegments = svgSegments;
 
       setSegments(generatedSegments);
     };
@@ -1158,61 +1165,6 @@ const RenderSVG = React.memo(({segments, scale = 1.7}) => {
   //   };
   // };
 
-  // const playNextAnimation = (segmentIndex, svgIndex) => {
-  //   if (segmentIndex >= segments.length) {
-  //     console.log('All animations finished');
-  //     return; // All animations have been played
-  //   }
-
-  //   const segment = segments[segmentIndex];
-  //   const svg = segment.svgs[svgIndex];
-  //   const duration = svg.duration || 3; // Define the duration for each SVG animation
-  //   const path = svg.path;
-  //   console.log('path', path);
-  //   const startTime = Date.now();
-  //   // // Find the x and y coordinates of the SVG path during playing animation
-
-  //   const animate = () => {
-  //     const elapsedTime = (Date.now() - startTime) / 1000;
-  //     const currentProgress = elapsedTime / duration;
-  //     const pathProperties = new svgPathProperties(path);
-  //     const pathLength = pathProperties.getTotalLength();
-  //     const pathPoint = pathProperties.getPointAtLength(
-  //       pathLength * currentProgress,
-  //     ); // Assuming progress is defined elsewhere
-  //     setCoords({x: pathPoint.x * scale, y: pathPoint.y * scale}); // Apply scaling
-  //     setProgress(currentProgress);
-
-  //     if (elapsedTime < duration) {
-  //       animationFrameRef.current = requestAnimationFrame(animate);
-  //     } else {
-  //       setProgress(1);
-  //       const endPoint = pathProperties.getPointAtLength(pathLength);
-  //       setCoords({x: endPoint.x * scale, y: endPoint.y * scale});
-  //       setCompletedAnimations(prev => [
-  //         ...prev,
-  //         `${segmentIndex}-${svgIndex}`,
-  //       ]);
-
-  //       setTimeout(() => {
-  //         setProgress(0);
-
-  //         if (svgIndex < segment.svgs.length - 1) {
-  //           setCurrentSvgIndex(svgIndex + 1);
-  //           playNextAnimation(segmentIndex, svgIndex + 1);
-  //         } else {
-  //           setCurrentSegmentIndex(segmentIndex + 1);
-  //           setCurrentSvgIndex(0);
-  //           playNextAnimation(segmentIndex + 1, 0);
-  //         }
-  //       }, 500); // Optional delay before the next animation starts
-  //     }
-  //   };
-
-  //   requestAnimationFrame(animate);
-  // };
-
-  // audio plus pause
   const playNextAnimation = (segmentIndex, svgIndex) => {
     if (segmentIndex >= segments.length) {
       console.log('All animations finished');
@@ -1221,65 +1173,118 @@ const RenderSVG = React.memo(({segments, scale = 1.7}) => {
 
     const segment = segments[segmentIndex];
     const svg = segment.svgs[svgIndex];
-    const audio = new Audio.Sound();
-    const duration = svg.duration; // Define the duration for each SVG animation
+    const duration = svg.duration || 3; // Define the duration for each SVG animation
+    const path = svg.path;
+    const startTime = Date.now();
 
-    const startAnimation = () => {
-      const startTime = Date.now();
-      const animate = () => {
-        const elapsedTime = (Date.now() - startTime) / 1000;
-        const currentProgress = elapsedTime / duration;
-        setProgress(currentProgress);
+    const animate = () => {
+      const elapsedTime = (Date.now() - startTime) / 1000;
+      const currentProgress = elapsedTime / duration;
+      const pathProperties = new svgPathProperties(path);
+      const pathLength = pathProperties.getTotalLength();
+      const pathPoint = pathProperties.getPointAtLength(
+        pathLength * currentProgress,
+      ); // Assuming progress is defined elsewhere
+      setCoords({x: pathPoint.x * scale, y: pathPoint.y * scale}); // Apply scaling
+      setProgress(currentProgress);
 
-        if (elapsedTime < duration) {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        } else {
-          setProgress(1);
-          setCompletedAnimations(prev => [
-            ...prev,
-            `${segmentIndex}-${svgIndex}`,
-          ]);
-          // Wait for audio to finish before moving to the next animation
-          audio.stopAsync().then(() => {
-            setProgress(0);
-            setTimeout(() => {
-              if (svgIndex < segment.svgs.length - 1) {
-                setCurrentSvgIndex(svgIndex + 1);
-                playNextAnimation(segmentIndex, svgIndex + 1);
-              } else {
-                setCurrentSegmentIndex(segmentIndex + 1);
-                setCurrentSvgIndex(0);
-                playNextAnimation(segmentIndex + 1, 0);
-              }
-            }, 1000);
-          });
-        }
-      };
-      requestAnimationFrame(animate);
-    };
+      if (elapsedTime < duration) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        setProgress(1);
+        const endPoint = pathProperties.getPointAtLength(pathLength);
+        setCoords({x: endPoint.x * scale, y: endPoint.y * scale});
+        setCompletedAnimations(prev => [
+          ...prev,
+          `${segmentIndex}-${svgIndex}`,
+        ]);
 
-    audio
-      .loadAsync({uri: svg.audio})
-      .then(() => {
-        audio.playAsync().then(() => {
-          startAnimation();
-        });
-      })
-      .catch(error => {
-        console.error('Error loading audio:', error);
-        startAnimation(); // Start animation even if audio fails to load
-      });
+        setTimeout(() => {
+          setProgress(0);
 
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+          if (svgIndex < segment.svgs.length - 1) {
+            setCurrentSvgIndex(svgIndex + 1);
+            playNextAnimation(segmentIndex, svgIndex + 1);
+          } else {
+            setCurrentSegmentIndex(segmentIndex + 1);
+            setCurrentSvgIndex(0);
+            playNextAnimation(segmentIndex + 1, 0);
+          }
+        }, 500); // Optional delay before the next animation starts
       }
-      audio.unloadAsync(); // Clean up audio resources
     };
+
+    requestAnimationFrame(animate);
   };
 
+  // audio plus pause
+  // const playNextAnimation = (segmentIndex, svgIndex) => {
+  //   if (segmentIndex >= segments.length) {
+  //     console.log('All animations finished');
+  //     return; // All animations have been played
+  //   }
+
+  //   const segment = segments[segmentIndex];
+  //   const svg = segment.svgs[svgIndex];
+  //   const audio = new Audio.Sound();
+  //   const duration = svg.duration; // Define the duration for each SVG animation
+
+  //   const startAnimation = () => {
+  //     const startTime = Date.now();
+  //     const animate = () => {
+  //       const elapsedTime = (Date.now() - startTime) / 1000;
+  //       const currentProgress = elapsedTime / duration;
+  //       setProgress(currentProgress);
+
+  //       if (elapsedTime < duration) {
+  //         animationFrameRef.current = requestAnimationFrame(animate);
+  //       } else {
+  //         setProgress(1);
+  //         setCompletedAnimations(prev => [
+  //           ...prev,
+  //           `${segmentIndex}-${svgIndex}`,
+  //         ]);
+  //         // Wait for audio to finish before moving to the next animation
+  //         audio.stopAsync().then(() => {
+  //           setProgress(0);
+  //           setTimeout(() => {
+  //             if (svgIndex < segment.svgs.length - 1) {
+  //               setCurrentSvgIndex(svgIndex + 1);
+  //               playNextAnimation(segmentIndex, svgIndex + 1);
+  //             } else {
+  //               setCurrentSegmentIndex(segmentIndex + 1);
+  //               setCurrentSvgIndex(0);
+  //               playNextAnimation(segmentIndex + 1, 0);
+  //             }
+  //           }, 1000);
+  //         });
+  //       }
+  //     };
+  //     requestAnimationFrame(animate);
+  //   };
+
+  //   audio
+  //     .loadAsync({uri: svg.audio})
+  //     .then(() => {
+  //       audio.playAsync().then(() => {
+  //         startAnimation();
+  //       });
+  //     })
+  //     .catch(error => {
+  //       console.error('Error loading audio:', error);
+  //       startAnimation(); // Start animation even if audio fails to load
+  //     });
+
+  //   return () => {
+  //     if (animationFrameRef.current) {
+  //       cancelAnimationFrame(animationFrameRef.current);
+  //     }
+  //     audio.unloadAsync(); // Clean up audio resources
+  //   };
+  // };
+
   useEffect(() => {
-    segments.length > 0 && playNextAnimation(0, 0);
+    // segments.length > 0 && playNextAnimation(0, 0);
 
     return () => {
       if (animationFrameRef.current) {
@@ -1337,23 +1342,23 @@ const RenderSVG = React.memo(({segments, scale = 1.7}) => {
 
             let effectiveTranslateX = (translateX || 0) * scale + translationX;
 
-            if (svg.dot) {
-              const indexOfI = segments.findIndex(s => s.letter === 'i');
+            // if (svg.dot) {
+            //   const indexOfI = segments.findIndex(s => s.letter === 'i');
 
-              // Check if 'i' is the first letter
-              let x = segments
-                .slice(indexOfI, segments.length - 1)
-                .reduce((acc, seg) => {
-                  let xPos = 0;
-                  for (let i = 0; i < seg.svgs.length; i++) {
-                    xPos += seg.svgs[i].attr.translateX;
-                  }
-                  return (acc += xPos);
-                }, 0);
+            //   // Check if 'i' is the first letter
+            //   let x = segments
+            //     .slice(indexOfI, segments.length - 1)
+            //     .reduce((acc, seg) => {
+            //       let xPos = 0;
+            //       for (let i = 0; i < seg.svgs.length; i++) {
+            //         xPos += seg.svgs[i].attr.translateX;
+            //       }
+            //       return (acc += xPos);
+            //     }, 0);
 
-              effectiveTranslateX += x; // Combine the translations instead of overriding
-              console.log('effX', effectiveTranslateX, segment.type);
-            }
+            //   effectiveTranslateX += x; // Combine the translations instead of overriding
+            //   console.log('effX', effectiveTranslateX, segment.type);
+            // }
 
             let effectiveTranslateY = translateY * scale;
 

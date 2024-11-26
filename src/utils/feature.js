@@ -105,6 +105,7 @@ const createConnections = (char, nextChar) => {
     else if (S_CURVE.includes(nextChar)) connections.push('f.s.alt');
     else if (O_CURVE.includes(nextChar)) connections.push('f.o.alt');
     else if (E_CURVE.includes(nextChar)) connections.push('f.e.alt');
+    else if (nextChar === 'f') connections.push('f.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('f.asc.alt');
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('f.s.height');
   } else if (DESC_CHARS.includes(char)) {
@@ -124,6 +125,7 @@ const createConnections = (char, nextChar) => {
       connections.push('desc.s.height');
   } else if (char === 'b') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('b.caps.alt');
+    else if (nextChar === 'f') connections.push('b.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('b.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('b.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('b.mn.alt');
@@ -136,6 +138,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('b.s.height');
   } else if (char === 'e') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('e.caps.alt');
+    else if (nextChar === 'f') connections.push('e.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('e.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('e.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('e.mn.alt');
@@ -148,6 +151,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('e.s.height');
   } else if (char === 's') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('s.caps.alt');
+    else if (nextChar === 'f') connections.push('s.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('s.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('s.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('s.mn.alt');
@@ -160,6 +164,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('s.s.height');
   } else if (char === 'o') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('o.caps.alt');
+    else if (nextChar === 'f') connections.push('o.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('o.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('o.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('o.mn.alt');
@@ -172,6 +177,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('o.s.height');
   } else if (char === 'v' || char === 'w') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('v.caps.alt');
+    else if (nextChar) connections.push('v.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('v.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('v.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('v.mn.alt');
@@ -184,6 +190,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('v.s.height');
   } else if (char === 'z') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('z.caps.alt');
+    else if (nextChar === 'f') connections.push('z.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('z.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('z.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('z.mn.alt');
@@ -206,6 +213,7 @@ const createConnections = (char, nextChar) => {
     else if (Z_CURVE.includes(nextChar)) connections.push('q.z.alt');
     else if (O_CURVE.includes(nextChar)) connections.push('q.o.alt');
     else if (E_CURVE.includes(nextChar)) connections.push('q.e.alt');
+    else if (nextChar === 'j') connections.push('q.j.alt');
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('q.s.height');
   }
 
@@ -216,27 +224,40 @@ export const generateLetterToSVG = str => {
   const strArr = str.split('');
   const svgLetters = [];
   const specialSVGTypes = [
-    'StandLine', 'Sleeping', 'RightSlant', 'LeftSlant', 'CCurve', 'ReverseCurve', 
-    'UpwardCurve', 'DownWardCurve', 'MountainSlant', 'DownWardLoop', 
-    'UpAndDownLoopJoining', 'Sconnection', 'CurlySlant', 'UpwardLoop', 
-    'DownWardLoop', 'CurvedConnection', 'MountainConnection', 
-    'UpwardCurveConnection', 'DownwardCurveConnection', 'UpwardLoopJoining'
+    'StandLine',
+    'Sleeping',
+    'RightSlant',
+    'LeftSlant',
+    'CCurve',
+    'ReverseCurve',
+    'UpwardCurve',
+    'DownWardCurve',
+    'MountainSlant',
+    'DownWardLoop',
+    'UpAndDownLoopJoining',
+    'Sconnection',
+    'CurlySlant',
+    'UpwardLoop',
+    'DownWardLoop',
+    'CurvedConnection',
+    'MountainConnection',
+    'UpwardCurveConnection',
+    'DownwardCurveConnection',
+    'UpwardLoopJoining',
   ];
   if (specialSVGTypes.includes(str)) {
-    svgLetters.push({letter: str, svgs: [{type: str}]})
-  }else {
+    svgLetters.push({letter: str, svgs: [{type: str}]});
+  } else {
     for (let i = 0; i < strArr.length; i++) {
       let char = strArr[i];
       let nextChar = strArr[i + 1];
       let prevChar = i > 0 ? strArr[i - 1] : null;
-  
+
       let letterObj = {
         letter: char,
         svgs: [],
       };
-      // if(specialSVGTypes.includes(char)){
-      //   letterObj.svgs.push({type: `${char}.right`})
-      // }else 
+
       if (prevChar && !nextChar) {
         if (char === 'a' || char === 'd') {
           letterObj.svgs.push({type: `${char}.right`});
@@ -274,9 +295,9 @@ export const generateLetterToSVG = str => {
       } else if (!prevChar && !nextChar) {
         letterObj.svgs.push({type: `${char}.base`});
       }
-  
+
       svgLetters.push(letterObj);
-    } 
+    }
   }
 
   return svgLetters;
