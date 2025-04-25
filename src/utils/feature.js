@@ -1,68 +1,3 @@
-const lowerCaseHighEntryLetters = 'bdhkltf';
-const lowerCaseLowEntryLetters = 'aceormnsuvwi';
-const lowercaseUniqueShapes = 'gjyqzpx';
-const upperCaseHighEntryLetters = 'BDHKLTF';
-const upperCaseLowEntryLetters = 'ACEORMNSUVWI';
-const uppercaseUniqueShapes = 'GJYQZPX';
-const uppercaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-const checkNextCharacter = next => {
-  if (
-    lowerCaseHighEntryLetters.includes(next) ||
-    upperCaseHighEntryLetters.includes(next)
-  ) {
-    return 'high';
-  } else if (
-    lowerCaseLowEntryLetters.includes(next) ||
-    upperCaseLowEntryLetters.includes(next)
-  ) {
-    return 'low';
-  } else if (
-    lowercaseUniqueShapes.includes(next) ||
-    uppercaseUniqueShapes.includes(next)
-  ) {
-    return 'unique';
-  }
-};
-
-// export const generateLetterToSVG = str => {
-//   const strArr = str.split('');
-//   const svgLetters = [];
-
-//   for (let i = 0; i < strArr.length; i++) {
-//     let char = strArr[i];
-//     let nextChar = strArr[i + 1];
-//     let prevChar = i > 0 ? strArr[i - 1] : null;
-
-//     if (prevChar && !nextChar) {
-//       if ('rl'.includes(char)) {
-//         svgLetters.push(`${char}.base`);
-//       } else {
-//         svgLetters.push(`${char}.left`, `${char}.base`);
-//       }
-//     } else if (!prevChar && nextChar) {
-//       svgLetters.push(`${char}.base`);
-//     } else if (prevChar && nextChar) {
-//       if ('rl'.includes(char)) {
-//         svgLetters.push(`${char}.base`);
-//       } else if (char === 'c') {
-//         svgLetters.push('c.left', 'c.alt');
-//       } else {
-//         svgLetters.push(`${char}.left`, `${char}.base`);
-//       }
-//     } else if (!prevChar && !nextChar) {
-//       // if (char !== 'a') {
-//       //   svgLetters.push(`${char}.base`);
-//       // } else {
-//       // svgLetters.push(`${char}.left`, `${char}.base`);
-//       svgLetters.push(`${char}.base`);
-//       // }
-//     }
-//   }
-
-//   return svgLetters;
-// };
-
 const BASELINE_CHARS = 'acdhiklmnprtux';
 const DESC_CHARS = 'jgy';
 const HK_CURVE = 'hk';
@@ -177,7 +112,7 @@ const createConnections = (char, nextChar) => {
     else if (S_HEIGHT_CURVE.includes(nextChar)) connections.push('o.s.height');
   } else if (char === 'v' || char === 'w') {
     if (CAPS_CURVE.includes(nextChar)) connections.push('v.caps.alt');
-    else if (nextChar) connections.push('v.f.alt');
+    else if (nextChar === 'f') connections.push('v.f.alt');
     else if (ASC_CURVE.includes(nextChar)) connections.push('v.asc.alt');
     else if (HK_CURVE.includes(nextChar)) connections.push('v.hk.alt');
     else if (MN_CURVE.includes(nextChar)) connections.push('v.mn.alt');
@@ -258,43 +193,39 @@ export const generateLetterToSVG = str => {
         svgs: [],
       };
 
+      // Existing logic for populating letterObj.svgs
       if (prevChar && !nextChar) {
-        if (char === 'a' || char === 'd') {
-          letterObj.svgs.push({type: `${char}.right`});
-        } else {
-          letterObj.svgs.push({type: `${char}.right`});
-        }
+        letterObj.svgs.push({type: `${char}.right`});
       } else if (!prevChar && nextChar) {
         if (nextChar === 'e') {
           if (['g', 'j', 'y'].includes(char)) {
-            letterObj.svgs.push({type: `${char}.e.left`});
+            letterObj.svgs.push({type: `${char}.e.left`, curve: true}); // Ensure curve is set
           } else {
             letterObj.svgs.push({type: `${char}.left`});
           }
         } else {
           letterObj.svgs.push({type: `${char}.left`});
         }
-        createConnections(char, nextChar).forEach(connection => {
-          letterObj.svgs.push({type: connection});
-        });
       } else if (prevChar && nextChar) {
         if (prevChar === 'f' && char === 'f') {
           letterObj.svgs.push({type: 'f.f.alt'});
         } else if (nextChar === 'e') {
           if (['g', 'j', 'y'].includes(char)) {
-            letterObj.svgs.push({type: `${char}.e.alt`});
+            letterObj.svgs.push({type: `${char}.e.alt`, curve: true}); // Ensure curve is set
           } else {
             letterObj.svgs.push({type: `${char}.alt`});
           }
         } else {
           letterObj.svgs.push({type: `${char}.alt`});
         }
-        createConnections(char, nextChar).forEach(connection => {
-          letterObj.svgs.push({type: connection});
-        });
       } else if (!prevChar && !nextChar) {
         letterObj.svgs.push({type: `${char}.base`});
       }
+
+      // Create connections for the current letter
+      createConnections(char, nextChar).forEach(connection => {
+        letterObj.svgs.push({type: connection, curve: true}); // Ensure curve is set
+      });
 
       svgLetters.push(letterObj);
     }
