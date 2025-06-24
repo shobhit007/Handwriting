@@ -1,10 +1,11 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import Svg, {G, Path} from 'react-native-svg';
-import {PrintLetters} from '../letter';
 import {svgPathProperties} from 'svg-path-properties';
+import {CursiveLetters} from '../us_cursive_letter';
+import {PrintLetters} from '../letter';
 
-const SCALE = 2.5;
+const SCALE = 3;
 
 const Animation = ({word}) => {
   const [segments, segmentsSet] = React.useState([]);
