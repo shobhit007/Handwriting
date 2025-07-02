@@ -4,7 +4,7 @@ import Animation from './components/Animation';
 const App = () => {
   return (
     <View style={styles.container}>
-      <Animation word={'zsj'} />
+      <Animation word={'Zz'} />
     </View>
   );
 };

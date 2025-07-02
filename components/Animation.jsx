@@ -5,7 +5,11 @@ import {svgPathProperties} from 'svg-path-properties';
 import {CursiveLetters} from '../us_cursive_letter';
 import {PrintLetters} from '../letter';
 
-const SCALE = 3;
+const SCALE = 2;
+
+const caps = 'acdgqhijktu';
+const ascenders = 'blf';
+const base_mno = 'mnovwxyz';
 
 const Animation = ({word}) => {
   const [segments, segmentsSet] = React.useState([]);
@@ -20,16 +24,56 @@ const Animation = ({word}) => {
     for (let i = 0; i < word.length; i++) {
       const current = word[i];
       const next = word[i + 1] || '';
-      const ligature = current + next;
+      const prev = word[i - 1] || '';
 
-      // 1) If the two‐char ligature exists in your map, use that…
-      if (next === 'j' && PrintLetters[ligature]) {
-        svgSegments.push(PrintLetters[ligature]);
-        i++; // skip the 'j' on the next loop iteration
+      let letterKey = current;
+
+      // Handle two-character ligatures first (like 'ij', 'th', etc.)
+      if (next && CursiveLetters[current + next]) {
+        letterKey = current + next;
+        svgSegments.push(CursiveLetters[letterKey]);
+        i++; // skip the next letter since we used it in the ligature
       }
-      // 2) Otherwise if the single letter exists, use that…
-      else if (PrintLetters[current]) {
-        svgSegments.push(PrintLetters[current]);
+      // Handle single letters with connection context
+      else if (CursiveLetters[current]) {
+        // Determine the connection variant to use
+        if (i === 0) {
+          if (next) {
+            if (ascenders.includes(next)) {
+              letterKey = `${current}.asc`;
+            } else if (caps.includes(next)) {
+              letterKey = `${current}.caps`;
+            } else if (next === 'e' || next === 'p') {
+              letterKey = `${current}.left.e`;
+            } else if (base_mno.includes(next)) {
+              letterKey = `${current}.left.mn`;
+            } else if (next === 'r' || next === 's') {
+              letterKey = `${current}.left.rs`;
+            }
+          }
+        } else if (i === word.length - 1) {
+          // Last letter - use right-connecting version
+          if (prev === 'M' || prev === 'N' || prev === 'R') {
+            letterKey = `M.${current}`;
+          } else {
+            letterKey = `${prev}.${current}`;
+          }
+        } else {
+          // Middle letter - use connecting version from previous letter
+          letterKey = `${prev}.${current}`;
+        }
+
+        console.log('letterKey', letterKey);
+
+        // Fall back to basic letter if specific connection doesn't exist
+        if (!CursiveLetters[letterKey]) {
+          letterKey = current;
+        }
+
+        // Only add if the letter exists in our map
+        if (CursiveLetters[letterKey]) {
+          svgSegments.push(CursiveLetters[letterKey]);
+        }
       }
     }
 
