@@ -6,6 +6,7 @@ import {CursiveLetters} from '../us_cursive_letter';
 import {PrintLetters} from '../letter';
 
 const SCALE = 2;
+ORIGINAL_SCALE = 2;
 
 const caps = 'acdgqhijktu';
 const ascenders = 'blf';
@@ -30,7 +31,17 @@ const Animation = ({word}) => {
 
       // Handle two-character ligatures first (like 'ij', 'th', etc.)
       if (next && CursiveLetters[current + next]) {
+        console;
         letterKey = current + next;
+        const hasMoreLetters = i + 2 < word.length;
+
+        // If there are more letters, try to use the .alt version
+        if (hasMoreLetters && CursiveLetters[letterKey + '.alt']) {
+          letterKey = letterKey + '.alt';
+        }
+
+        console.log('ligatureKey', letterKey);
+
         svgSegments.push(CursiveLetters[letterKey]);
         i++; // skip the next letter since we used it in the ligature
       }
@@ -43,8 +54,10 @@ const Animation = ({word}) => {
               letterKey = `${current}.asc`;
             } else if (caps.includes(next)) {
               letterKey = `${current}.caps`;
-            } else if (next === 'e' || next === 'p') {
+            } else if (next === 'e') {
               letterKey = `${current}.left.e`;
+            } else if (next === 'p') {
+              letterKey = `${current}.left.p`;
             } else if (base_mno.includes(next)) {
               letterKey = `${current}.left.mn`;
             } else if (next === 'r' || next === 's') {
@@ -60,7 +73,11 @@ const Animation = ({word}) => {
           }
         } else {
           // Middle letter - use connecting version from previous letter
-          letterKey = `${prev}.${current}`;
+          if (caps.includes(next)) {
+            letterKey = `${prev}.${current}.caps`;
+          } else {
+            letterKey = `${prev}.${current}`;
+          }
         }
 
         console.log('letterKey', letterKey);
@@ -76,7 +93,6 @@ const Animation = ({word}) => {
         }
       }
     }
-
     segmentsSet(svgSegments);
   }, [word]);
 
@@ -130,8 +146,8 @@ const Animation = ({word}) => {
       style={{
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
         position: 'relative',
+        paddingHorizontal: 16,
       }}>
       <View
         style={{
@@ -139,67 +155,75 @@ const Animation = ({word}) => {
           flexWrap: 'wrap',
           alignItems: 'flex-start',
           position: 'relative',
-          // borderWidth: 1,
-          gap: 4,
         }}>
-        {segments.map((segment, segmentIdx) => (
-          <View
-            key={segmentIdx}
-            style={{
-              transform: [
-                {translateX: segment.x || 0 * SCALE},
-                {translateY: segment.y || 0 * SCALE},
-              ],
-            }}>
-            <Svg
-              width={segment.width * SCALE}
-              height={segment.height * SCALE}
-              viewBox={`0 0 ${segment.width} ${segment.height}`}
-              fill={'none'}>
-              {segment.svgs.map((svg, index) => {
-                return (
-                  <>
+        {segments.map((segment, segmentIdx) => {
+          const previousSegments = segments.slice(0, segmentIdx + 1);
+          const originalTranslationX = previousSegments.reduce(
+            (acc, currSegment) => {
+              return acc + (currSegment.x || 0);
+            },
+            0,
+          );
+
+          // Adjust for the scale change
+          const translationX = (originalTranslationX / ORIGINAL_SCALE) * SCALE;
+          console.log('translationX', translationX);
+          return (
+            <View
+              key={`segment-${segmentIdx}`}
+              style={{
+                transform: [{translateX: translationX || 0}],
+              }}>
+              <Svg
+                width={segment.width * SCALE}
+                height={segment.height * SCALE}
+                viewBox={`0 0 ${segment.width} ${segment.height}`}
+                fill={'none'}>
+                {segment.svgs.map((svg, index) => {
+                  return (
+                    <>
+                      <Path
+                        key={`${segmentIdx}-${index}`}
+                        d={svg.path}
+                        stroke="#000"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </>
+                  );
+                })}
+
+                {(() => {
+                  const currentSvgPath = segment.svgs[svgIndex]?.path || '';
+                  const pathData = new svgPathProperties(currentSvgPath);
+                  const pathLength = pathData.getTotalLength();
+
+                  const dashOffset = pathLength * (1 - progress);
+
+                  const isActivePath = segmentIdx === segmentIndex;
+
+                  if (!isActivePath) {
+                    return null;
+                  }
+
+                  return (
                     <Path
-                      key={`${segmentIdx}-${index}`}
-                      d={svg.path}
-                      stroke="#000"
+                      key={`active-${segmentIdx}`}
+                      d={currentSvgPath}
+                      stroke="red"
                       strokeWidth="4"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      strokeDasharray={pathLength}
+                      strokeDashoffset={dashOffset}
                     />
-                  </>
-                );
-              })}
-
-              {(() => {
-                const currentSvgPath = segment.svgs[svgIndex]?.path || '';
-                const pathData = new svgPathProperties(currentSvgPath);
-                const pathLength = pathData.getTotalLength();
-
-                const dashOffset = pathLength * (1 - progress);
-
-                const isActivePath = segmentIdx === segmentIndex;
-
-                if (!isActivePath) {
-                  return null;
-                }
-
-                return (
-                  <Path
-                    key={`active-${segmentIdx}`}
-                    d={currentSvgPath}
-                    stroke="red"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeDasharray={pathLength}
-                    strokeDashoffset={dashOffset}
-                  />
-                );
-              })()}
-            </Svg>
-          </View>
-        ))}
+                  );
+                })()}
+              </Svg>
+            </View>
+          );
+        })}
       </View>
 
       <Pressable
