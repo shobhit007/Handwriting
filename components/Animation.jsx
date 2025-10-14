@@ -5,7 +5,7 @@ import {svgPathProperties} from 'svg-path-properties';
 import {CursiveLetters} from '../us_cursive_letter';
 import {PrintLetters} from '../letter';
 
-const SCALE = 2;
+const SCALE = 1.5;
 ORIGINAL_SCALE = 2;
 
 const caps = 'acdgqhijktu';
@@ -75,8 +75,16 @@ const Animation = ({word}) => {
           // Middle letter - use connecting version from previous letter
           if (caps.includes(next)) {
             letterKey = `${prev}.${current}.caps`;
-          } else {
-            letterKey = `${prev}.${current}`;
+          } else if (ascenders.includes(next)) {
+            letterKey = `${prev}.${current}.asc`;
+          } else if (base_mno.includes(next)) {
+            letterKey = `${prev}.${current}.mn`;
+          } else if (next === 'e') {
+            letterKey = `${prev}.${current}.e`;
+          } else if (next === 'p') {
+            letterKey = `${prev}.${current}.p`;
+          } else if (next === 'r' || next === 's') {
+            letterKey = `${prev}.${current}.rs`;
           }
         }
 
