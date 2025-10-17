@@ -4,6 +4,7 @@ import Svg, {G, Path} from 'react-native-svg';
 import {svgPathProperties} from 'svg-path-properties';
 import {CursiveLetters} from '../us_cursive_letter';
 import {PrintLetters} from '../letter';
+import {CursiveLetters2} from '../us_cursive_letter_2';
 
 const SCALE = 1.5;
 ORIGINAL_SCALE = 2;
@@ -29,24 +30,26 @@ const Animation = ({word}) => {
 
       let letterKey = current;
 
+      const mergedLetters = {...CursiveLetters, ...CursiveLetters2};
+
       // Handle two-character ligatures first (like 'ij', 'th', etc.)
-      if (next && CursiveLetters[current + next]) {
+      if (next && mergedLetters[current + next]) {
         console;
         letterKey = current + next;
         const hasMoreLetters = i + 2 < word.length;
 
         // If there are more letters, try to use the .alt version
-        if (hasMoreLetters && CursiveLetters[letterKey + '.alt']) {
+        if (hasMoreLetters && mergedLetters[letterKey + '.alt']) {
           letterKey = letterKey + '.alt';
         }
 
         console.log('ligatureKey', letterKey);
 
-        svgSegments.push(CursiveLetters[letterKey]);
+        svgSegments.push(mergedLetters[letterKey]);
         i++; // skip the next letter since we used it in the ligature
       }
       // Handle single letters with connection context
-      else if (CursiveLetters[current]) {
+      else if (mergedLetters[current]) {
         // Determine the connection variant to use
         if (i === 0) {
           if (next) {
@@ -91,13 +94,13 @@ const Animation = ({word}) => {
         console.log('letterKey', letterKey);
 
         // Fall back to basic letter if specific connection doesn't exist
-        if (!CursiveLetters[letterKey]) {
+        if (!mergedLetters[letterKey]) {
           letterKey = current;
         }
 
         // Only add if the letter exists in our map
-        if (CursiveLetters[letterKey]) {
-          svgSegments.push(CursiveLetters[letterKey]);
+        if (mergedLetters[letterKey]) {
+          svgSegments.push(mergedLetters[letterKey]);
         }
       }
     }
