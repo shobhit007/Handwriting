@@ -6,7 +6,7 @@ import DashboardScreen from './components/Dashboard';
 const App = () => {
   return (
     <View style={styles.container}>
-      <Animation word={'obb'} />
+      <Animation word={'wzs'} />
       {/* <DashboardScreen /> */}
     </View>
   );
