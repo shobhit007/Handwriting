@@ -1050,95 +1050,95 @@ const temp = {
     ],
   },
 
-  //   'q.l.asc': {
-  //     width: ,
-  //     height: 100,
-  //     x: -24,
-  //     svgs: [
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //     ],
-  //   },
+  // 'q.l.asc': {
+  //   width: ,
+  //   height: 100,
+  //   x: -24,
+  //   svgs: [
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //   ],
+  // },
 
-  //   'q.l.mn': {
-  //     width: ,
-  //     height: 100,
-  //     x: -24,
-  //     svgs: [
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //     ],
-  //   },
+  // 'q.l.mn': {
+  //   width: ,
+  //   height: 100,
+  //   x: -24,
+  //   svgs: [
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //   ],
+  // },
 
-  //   'q.l.e': {
-  //     width: ,
-  //     height: 100,
-  //     x: -24,
-  //     svgs: [
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //     ],
-  //   },
+  // 'q.l.e': {
+  //   width: ,
+  //   height: 100,
+  //   x: -24,
+  //   svgs: [
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //   ],
+  // },
 
-  //   'q.l.p': {
-  //     width: ,
-  //     height: 100,
-  //     x: -24,
-  //     svgs: [
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //     ],
-  //   },
+  // 'q.l.p': {
+  //   width: ,
+  //   height: 100,
+  //   x: -24,
+  //   svgs: [
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //   ],
+  // },
 
-  //   'q.l.rs': {
-  //     width: ,
-  //     height: 100,
-  //     x: -24,
-  //     svgs: [
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //       {
-  //         type: 'curve',
-  //         duration: 1,
-  //         path: '',
-  //       },
-  //     ],
-  //   },
+  // 'q.l.rs': {
+  //   width: ,
+  //   height: 100,
+  //   x: -24,
+  //   svgs: [
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //     {
+  //       type: 'curve',
+  //       duration: 1,
+  //       path: '',
+  //     },
+  //   ],
+  // },
 };
 
 // const blank = {

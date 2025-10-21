@@ -3,10 +3,16 @@ import Animation from './components/Animation';
 import WelcomeScreen from './components/Welcome';
 import DashboardScreen from './components/Dashboard';
 
+// const caps = 'acdgqhijktu';
+// const ascenders = 'blf';
+// const base_mno = 'mnovwxyz';
+
+//e p rs
+
 const App = () => {
   return (
     <View style={styles.container}>
-      <Animation word={'wzs'} />
+      <Animation word={'xzs'} />
       {/* <DashboardScreen /> */}
     </View>
   );

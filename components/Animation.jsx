@@ -13,6 +13,8 @@ const caps = 'acdgqhijktu';
 const ascenders = 'blf';
 const base_mno = 'mnovwxyz';
 
+//e p rs
+
 const Animation = ({word}) => {
   const [segments, segmentsSet] = React.useState([]);
   const [segmentIndex, setSegmentIndex] = React.useState(0);
