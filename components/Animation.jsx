@@ -2,9 +2,10 @@ import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import Svg, {G, Path} from 'react-native-svg';
 import {svgPathProperties} from 'svg-path-properties';
-import {CursiveLetters} from '../us_cursive_letter';
-import {PrintLetters} from '../letter';
-import {CursiveLetters2} from '../us_cursive_letter_2';
+import {CursiveLetters} from '../us_cursive/us_cursive_letter';
+import {CursiveLetters2} from '../us_cursive/us_cursive_letter_2';
+import {CursiveLetters3} from '../us_cursive/us_cursive_letters_3';
+import {capitalLetters} from '../us_cursive/capitalLetters';
 
 const SCALE = 1.5;
 ORIGINAL_SCALE = 2;
@@ -30,11 +31,16 @@ const Animation = ({word}) => {
 
       let letterKey = current;
 
-      const mergedLetters = {...CursiveLetters, ...CursiveLetters2};
+      const mergedLetters = {
+        ...capitalLetters,
+        ...CursiveLetters,
+        ...CursiveLetters2,
+        ...CursiveLetters3,
+      };
 
       // Handle two-character ligatures first (like 'ij', 'th', etc.)
       if (next && mergedLetters[current + next]) {
-        console;
+        console.log('ligatureKey', current + next);
         letterKey = current + next;
         const hasMoreLetters = i + 2 < word.length;
 
